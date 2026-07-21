@@ -18,16 +18,19 @@ Step-by-step plan for the Music Player. We build, tune, and polish each step bef
 - [x] Compiles and launches to an empty scaffold
 
 ## Step 3 — Data layer
-- [ ] Domain models: `Track`, `Playlist`, `Album`
+- [ ] Domain models: `Track` (incl. `isFavorite: Boolean`, `playCount: Int`), `Playlist`, `Album`
 - [ ] `MediaStoreDataSource` (query device audio + metadata)
 - [ ] Room: `MusicDatabase`, `PlaylistDao`, `PlaylistEntity`, `PlaylistTrackCrossRef`
-- [ ] `MusicRepository`, `PlaylistRepository`
+- [ ] Room: `TrackStatsEntity` (`trackId` PK, `isFavorite`, `playCount`) + `TrackStatsDao`
+      (`setFavorite`, `incrementPlayCount`, `observeStats`)
+- [ ] `MusicRepository` (merge MediaStore tracks with Room stats), `PlaylistRepository`
 - [ ] Hilt `AppModule`, `DatabaseModule`
 
 ## Step 4 — Playback layer
 - [ ] `PlaybackService` (`MediaSessionService` + ExoPlayer)
 - [ ] `PlaybackConnection` (MediaController wrapper → `StateFlow`)
 - [ ] `PlaybackState` model
+- [ ] `Player.Listener` increments play count after ~5s of playback (once per play; → `TrackStatsDao.incrementPlayCount`)
 - [ ] Hilt `PlaybackModule`
 
 ## Step 5 — Ad seam (no SDK)
@@ -37,10 +40,12 @@ Step-by-step plan for the Music Player. We build, tune, and polish each step bef
 
 ## Step 6 — UI layer
 - [ ] Theme + navigation graph
-- [ ] Library screen (list, permission gate, scan)
+- [ ] Library screen (list, permission gate, scan) with sort options incl. **Most played** (`TrackSort`)
+- [ ] Favorites view (screen/tab listing favorited tracks; playable as a queue)
 - [ ] Now Playing (transport, seek, ±5/±10s step, shuffle, repeat)
 - [ ] Playlists + Playlist detail (create, edit, reorder)
-- [ ] Reusable components (MiniPlayer, TrackRow, SeekBar, StepButtons)
+- [ ] Reusable components (MiniPlayer, TrackRow w/ favorite toggle, SeekBar, StepButtons)
+- [ ] Favorite toggle on TrackRow + Now Playing; surface play count where useful
 
 ## Step 7 — Housekeeping ✅
 - [x] Update `PROJECT_IDEAS.md` (revise ad line; move idea to *In Progress*)
