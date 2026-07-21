@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Music Player</string>
+
+    <!-- Permission -->
+    <string name="permission_audio_rationale">Music Player needs access to your device audio to build your music library.</string>
+    <string name="permission_grant">Grant access</string>
+
+    <!-- Navigation -->
+    <string name="nav_library">Library</string>
+    <string name="nav_playlists">Playlists</string>
+
+    <!-- Playback content descriptions -->
+    <string name="cd_play">Play</string>
+    <string name="cd_pause">Pause</string>
+    <string name="cd_stop">Stop</string>
+    <string name="cd_next">Next</string>
+    <string name="cd_previous">Previous</string>
+    <string name="cd_shuffle">Shuffle</string>
+    <string name="cd_repeat">Repeat</string>
+    <string name="cd_rewind_5">Rewind 5 seconds</string>
+    <string name="cd_rewind_10">Rewind 10 seconds</string>
+    <string name="cd_forward_5">Forward 5 seconds</string>
+    <string name="cd_forward_10">Forward 10 seconds</string>
+    <string name="cd_album_art">Album art</string>
+
+    <!-- Playback notification channel -->
+    <string name="playback_channel_name">Playback</string>
+
+    <!-- Empty states -->
+    <string name="empty_library">No music found on this device.</string>
+    <string name="empty_playlists">No playlists yet.</string>
+</resources>

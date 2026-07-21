@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Simple music note glyph on the adaptive-icon foreground layer. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#E94560"
+        android:pathData="M64,34 L64,62.2 C62.2,61.4 60.2,61 58,61 C51.4,61 46,64.6 46,69 C46,73.4 51.4,77 58,77 C64.6,77 70,73.4 70,69 L70,44 L80,44 L80,34 Z" />
+</vector>

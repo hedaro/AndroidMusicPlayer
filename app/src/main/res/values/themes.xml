@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme. Compose drives the real UI theme (see ui/theme);
+         this is the launch/system theme applied before Compose takes over. -->
+    <style name="Theme.MusicPlayer" parent="android:Theme.Material.NoActionBar" />
+</resources>
