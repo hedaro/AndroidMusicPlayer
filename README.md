@@ -2,9 +2,11 @@
 
 A clean, ad-free Android music player for the local device library — built for personal daily use.
 
+> Created with help from [Claude Code](https://claude.com/claude-code) as a learning exercise — an excuse to explore modern Android project structure (Compose, Media3, Room, Hilt) and build something for personal use.
+
 ## Status
 
-🚧 In development. See [`ROADMAP.md`](ROADMAP.md) for the step-by-step build plan and progress.
+✅ Feature-complete. All planned features are implemented; see [`ROADMAP.md`](ROADMAP.md) for the build history.
 
 ## Features (target)
 
