@@ -61,17 +61,9 @@ class PlaylistDetailViewModel @Inject constructor(
         viewModelScope.launch { playlistRepository.removeTrack(playlistId, track.id) }
     }
 
-    /**
-     * Move the track at [fromIndex] to [toIndex] and persist the new order. No-op while a search
-     * filter is active, since indices/list would refer to the filtered subset (the UI also hides
-     * reordering during search).
-     */
-    fun move(fromIndex: Int, toIndex: Int) {
-        if (_query.value.isNotBlank()) return
-        val current = tracks.value
-        if (fromIndex !in current.indices || toIndex !in current.indices) return
-        val reordered = current.toMutableList().apply { add(toIndex, removeAt(fromIndex)) }
-        viewModelScope.launch { playlistRepository.reorder(playlistId, reordered.map { it.id }) }
+    /** Persist a new track order (from drag-to-reorder). */
+    fun reorder(orderedTrackIds: List<Long>) {
+        viewModelScope.launch { playlistRepository.reorder(playlistId, orderedTrackIds) }
     }
 
     fun rename(newName: String) {

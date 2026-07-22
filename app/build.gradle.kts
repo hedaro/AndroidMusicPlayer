@@ -101,4 +101,7 @@ dependencies {
 
     // Splash screen (hold until theme preference loads)
     implementation(libs.androidx.core.splashscreen)
+
+    // Drag-to-reorder playlist tracks
+    implementation(libs.reorderable)
 }
