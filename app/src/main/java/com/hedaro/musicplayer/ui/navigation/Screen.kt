@@ -13,6 +13,7 @@ sealed class Screen(val route: String) {
     data object Favorites : Screen("favorites")
     data object Playlists : Screen("playlists")
     data object NowPlaying : Screen("now_playing")
+    data object Settings : Screen("settings")
 
     data object PlaylistDetail : Screen("playlist/{playlistId}") {
         const val ARG_PLAYLIST_ID = "playlistId"

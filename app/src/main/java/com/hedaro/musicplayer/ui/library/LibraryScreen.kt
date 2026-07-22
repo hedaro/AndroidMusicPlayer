@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,6 +40,7 @@ import com.hedaro.musicplayer.ui.components.TrackSortMenu
 
 @Composable
 fun LibraryScreen(
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LibraryViewModel = hiltViewModel(),
 ) {
@@ -60,6 +62,7 @@ fun LibraryScreen(
                 currentSort = sort,
                 onSortSelected = viewModel::setSort,
                 onShufflePlay = viewModel::shufflePlay,
+                onOpenSettings = onOpenSettings,
             )
         },
     ) { innerPadding ->
@@ -119,10 +122,11 @@ private fun LibraryTopBar(
     currentSort: TrackSort,
     onSortSelected: (TrackSort) -> Unit,
     onShufflePlay: () -> Unit,
+    onOpenSettings: () -> Unit,
 ) {
     Column {
         TopAppBar(
-            title = { Text(stringResource(R.string.nav_library)) },
+            title = { Text(stringResource(R.string.app_name)) },
             actions = {
                 // Search toggle. Tinted when a filter is active but the field is collapsed.
                 IconButton(onClick = onToggleSearch) {
@@ -140,6 +144,9 @@ private fun LibraryTopBar(
                     Icon(Icons.Filled.Shuffle, contentDescription = stringResource(R.string.cd_shuffle))
                 }
                 TrackSortMenu(currentSort = currentSort, onSortSelected = onSortSelected)
+                IconButton(onClick = onOpenSettings) {
+                    Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.cd_settings))
+                }
             },
         )
 

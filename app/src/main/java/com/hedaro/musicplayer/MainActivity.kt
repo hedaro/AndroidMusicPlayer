@@ -4,6 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,11 +26,13 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hedaro.musicplayer.ads.AdProvider
+import com.hedaro.musicplayer.data.preferences.ThemeMode
 import com.hedaro.musicplayer.ui.components.MiniPlayer
 import com.hedaro.musicplayer.ui.navigation.MusicNavHost
 import com.hedaro.musicplayer.ui.navigation.Screen
 import com.hedaro.musicplayer.ui.navigation.TopLevelDestination
 import com.hedaro.musicplayer.ui.nowplaying.NowPlayingViewModel
+import com.hedaro.musicplayer.ui.settings.SettingsViewModel
 import com.hedaro.musicplayer.ui.theme.MusicPlayerTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -42,11 +47,26 @@ class MainActivity : ComponentActivity() {
     /** Ad-free NoOpAdProvider today (see the `ads` package); injected by Hilt. */
     @Inject lateinit var adProvider: AdProvider
 
+    // Activity-scoped so the splash keep-condition can read the theme before Compose subscribes.
+    private val settingsViewModel: SettingsViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        // Hold the splash until the saved theme preference has loaded, so the first visible
+        // frame is already correctly themed (avoids a one-frame theme flicker).
+        splashScreen.setKeepOnScreenCondition { settingsViewModel.themeMode.value == null }
+
         enableEdgeToEdge()
         setContent {
-            MusicPlayerTheme {
+            val themeMode by settingsViewModel.themeMode.collectAsStateWithLifecycle()
+            val darkTheme = when (themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                else -> isSystemInDarkTheme() // null (still loading) or SYSTEM
+            }
+            MusicPlayerTheme(darkTheme = darkTheme) {
                 MusicApp(adProvider = adProvider)
             }
         }
@@ -103,11 +123,13 @@ private fun MusicApp(adProvider: AdProvider) {
             }
         },
     ) { innerPadding ->
+        // Only consume the bottom inset (for the bottom bar). Each screen's own TopAppBar
+        // handles the status-bar (top) inset, so applying it here too would double it.
         MusicNavHost(
             navController = navController,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(bottom = innerPadding.calculateBottomPadding()),
         )
     }
 }

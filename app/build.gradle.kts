@@ -95,4 +95,10 @@ dependencies {
 
     // Coil — album art
     implementation(libs.coil.compose)
+
+    // DataStore — app settings (theme preference)
+    implementation(libs.androidx.datastore.preferences)
+
+    // Splash screen (hold until theme preference loads)
+    implementation(libs.androidx.core.splashscreen)
 }
