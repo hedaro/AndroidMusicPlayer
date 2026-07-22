@@ -3,6 +3,7 @@ package com.hedaro.musicplayer.data.local.db.dao
 import androidx.room.Dao
 import androidx.room.Embedded
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
@@ -58,7 +59,7 @@ interface PlaylistDao {
     @Query("SELECT COALESCE(MAX(position), -1) FROM playlist_track_cross_ref WHERE playlistId = :playlistId")
     suspend fun maxPosition(playlistId: Long): Int
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertTrackRef(ref: PlaylistTrackCrossRef)
 
     @Query("DELETE FROM playlist_track_cross_ref WHERE playlistId = :playlistId AND trackId = :trackId")
