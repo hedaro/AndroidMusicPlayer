@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -35,10 +36,17 @@ class LibraryViewModel @Inject constructor(
     private val _sort = MutableStateFlow(TrackSort.TITLE)
     val sort: StateFlow<TrackSort> = _sort.asStateFlow()
 
+    private val _query = MutableStateFlow("")
+    val query: StateFlow<String> = _query.asStateFlow()
+
+    /** Sorted library, filtered by the current search query (title/artist/album, case-insensitive). */
     val tracks: StateFlow<List<Track>> =
-        _sort
-            .flatMapLatest { musicRepository.observeTracks(it) }
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+        combine(
+            _sort.flatMapLatest { musicRepository.observeTracks(it) },
+            _query,
+        ) { sorted, query ->
+            if (query.isBlank()) sorted else sorted.filter { it.matchesQuery(query) }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     /** Playlists offered in the "add to playlist" dialog. */
     val playlists: StateFlow<List<Playlist>> =
@@ -48,6 +56,15 @@ class LibraryViewModel @Inject constructor(
     fun setSort(newSort: TrackSort) {
         _sort.value = newSort
     }
+
+    fun setQuery(newQuery: String) {
+        _query.value = newQuery
+    }
+
+    private fun Track.matchesQuery(q: String): Boolean =
+        title.contains(q, ignoreCase = true) ||
+            artist.contains(q, ignoreCase = true) ||
+            album.contains(q, ignoreCase = true)
 
     fun addToPlaylist(playlistId: Long, trackId: Long) {
         viewModelScope.launch { playlistRepository.addTrack(playlistId, trackId) }
