@@ -126,12 +126,7 @@ private fun LibraryTopBar(
 ) {
     Column {
         TopAppBar(
-            title = { Text(stringResource(R.string.nav_library)) },
-            navigationIcon = {
-                IconButton(onClick = onOpenSettings) {
-                    Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.cd_settings))
-                }
-            },
+            title = { Text(stringResource(R.string.app_name)) },
             actions = {
                 // Search toggle. Tinted when a filter is active but the field is collapsed.
                 IconButton(onClick = onToggleSearch) {
@@ -149,6 +144,9 @@ private fun LibraryTopBar(
                     Icon(Icons.Filled.Shuffle, contentDescription = stringResource(R.string.cd_shuffle))
                 }
                 TrackSortMenu(currentSort = currentSort, onSortSelected = onSortSelected)
+                IconButton(onClick = onOpenSettings) {
+                    Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.cd_settings))
+                }
             },
         )
 

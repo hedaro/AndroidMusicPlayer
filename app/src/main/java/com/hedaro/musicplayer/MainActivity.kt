@@ -113,11 +113,13 @@ private fun MusicApp(adProvider: AdProvider) {
             }
         },
     ) { innerPadding ->
+        // Only consume the bottom inset (for the bottom bar). Each screen's own TopAppBar
+        // handles the status-bar (top) inset, so applying it here too would double it.
         MusicNavHost(
             navController = navController,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
+                .padding(bottom = innerPadding.calculateBottomPadding()),
         )
     }
 }
