@@ -68,6 +68,8 @@ class MediaStoreDataSource @Inject constructor(
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.TRACK,
             MediaStore.Audio.Media.DATE_ADDED,
+            @Suppress("DEPRECATION")
+            MediaStore.Audio.Media.DATA,
         )
         // Include unclassified audio too: freshly-added files can have IS_MUSIC = NULL until a full
         // media scan runs (e.g. dragging files onto the emulator). `NULL != 0` is not true in SQL,
@@ -86,11 +88,14 @@ class MediaStoreDataSource @Inject constructor(
             val durationCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
             val trackNoCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK)
             val dateAddedCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
+            @Suppress("DEPRECATION")
+            val dataCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
 
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idCol)
                 val albumId = cursor.getLong(albumIdCol)
                 val rawTrackNo = if (cursor.isNull(trackNoCol)) null else cursor.getInt(trackNoCol)
+                val filePath = cursor.getString(dataCol).orEmpty()
 
                 tracks += Track(
                     id = id,
@@ -104,6 +109,7 @@ class MediaStoreDataSource @Inject constructor(
                     // MediaStore encodes disc*1000 + track; keep the low 3 digits as the track number.
                     trackNumber = rawTrackNo?.let { if (it > 1000) it % 1000 else it },
                     dateAddedSec = cursor.getLong(dateAddedCol),
+                    folder = filePath.substringBeforeLast('/', missingDelimiterValue = ""),
                 )
             }
         }

@@ -25,6 +25,8 @@ data class Track(
     val albumArtUri: Uri,
     val trackNumber: Int? = null,
     val dateAddedSec: Long = 0L,
+    /** Full parent-directory path of the audio file, used for folder browsing. */
+    val folder: String = "",
     // User data merged from Room:
     val isFavorite: Boolean = false,
     val playCount: Int = 0,

@@ -1,5 +1,6 @@
 package com.hedaro.musicplayer.ui.navigation
 
+import android.net.Uri
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Favorite
@@ -18,6 +19,17 @@ sealed class Screen(val route: String) {
     data object PlaylistDetail : Screen("playlist/{playlistId}") {
         const val ARG_PLAYLIST_ID = "playlistId"
         fun createRoute(playlistId: Long): String = "playlist/$playlistId"
+    }
+
+    data object AlbumDetail : Screen("album/{albumId}") {
+        const val ARG_ALBUM_ID = "albumId"
+        fun createRoute(albumId: Long): String = "album/$albumId"
+    }
+
+    data object FolderDetail : Screen("folder/{folderPath}") {
+        const val ARG_FOLDER_PATH = "folderPath"
+        // Encode the path so its '/' don't break route matching.
+        fun createRoute(folderPath: String): String = "folder/${Uri.encode(folderPath)}"
     }
 }
 
