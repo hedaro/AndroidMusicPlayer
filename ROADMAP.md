@@ -47,10 +47,10 @@ Step-by-step plan for the Music Player. We build, tune, and polish each step bef
 - [x] Library screen: track list, sort menu (incl. **Most played**), tap-to-play, **Shuffle-play** button
 - [x] `LibraryViewModel`; `TrackRow` component with favorite toggle
 
-### Step 6b — Now Playing + MiniPlayer
-- [ ] Now Playing screen: transport, seek bar, ±5/±10s step, **shuffle toggle**, repeat cycle, favorite
-- [ ] MiniPlayer (persistent bottom bar), `NowPlayingViewModel`
-- [ ] Reusable components (SeekBar, StepButtons); surface play count where useful
+### Step 6b — Now Playing + MiniPlayer ✅ (branch feature/step-6b-now-playing; pending build verification)
+- [x] Now Playing screen: transport, seek bar, ±5/±10s step, **shuffle toggle**, repeat cycle, favorite
+- [x] MiniPlayer (persistent bottom bar), `NowPlayingViewModel`
+- [x] Reusable components (TrackSeekBar, StepControls); play count surfaced on Now Playing
 
 ### Step 6c — Playlists + Favorites
 - [ ] Playlists list + detail (create, rename, delete, add/remove, reorder), **Shuffle-play** a playlist
