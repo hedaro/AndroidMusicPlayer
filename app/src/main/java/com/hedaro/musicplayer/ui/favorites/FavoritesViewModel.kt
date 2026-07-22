@@ -2,8 +2,10 @@ package com.hedaro.musicplayer.ui.favorites
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hedaro.musicplayer.data.model.Playlist
 import com.hedaro.musicplayer.data.model.Track
 import com.hedaro.musicplayer.data.repository.MusicRepository
+import com.hedaro.musicplayer.data.repository.PlaylistRepository
 import com.hedaro.musicplayer.playback.PlaybackConnection
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,11 +18,17 @@ import javax.inject.Inject
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
     private val musicRepository: MusicRepository,
+    private val playlistRepository: PlaylistRepository,
     private val playbackConnection: PlaybackConnection,
 ) : ViewModel() {
 
     val tracks: StateFlow<List<Track>> =
         musicRepository.observeFavorites()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    /** Playlists offered in the "add to playlist" dialog. */
+    val playlists: StateFlow<List<Playlist>> =
+        playlistRepository.observePlaylists()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun play(index: Int) = playbackConnection.playTracks(tracks.value, index)
@@ -29,5 +37,17 @@ class FavoritesViewModel @Inject constructor(
 
     fun toggleFavorite(track: Track) {
         viewModelScope.launch { musicRepository.setFavorite(track.id, !track.isFavorite) }
+    }
+
+    fun addToPlaylist(playlistId: Long, trackId: Long) {
+        viewModelScope.launch { playlistRepository.addTrack(playlistId, trackId) }
+    }
+
+    fun createPlaylistWithTrack(name: String, trackId: Long) {
+        if (name.isBlank()) return
+        viewModelScope.launch {
+            val playlistId = playlistRepository.createPlaylist(name)
+            playlistRepository.addTrack(playlistId, trackId)
+        }
     }
 }

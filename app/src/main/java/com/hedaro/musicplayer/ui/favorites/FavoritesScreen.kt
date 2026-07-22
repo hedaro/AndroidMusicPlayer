@@ -15,13 +15,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hedaro.musicplayer.R
+import com.hedaro.musicplayer.data.model.Track
+import com.hedaro.musicplayer.ui.components.AddToPlaylistDialog
 import com.hedaro.musicplayer.ui.components.TrackRow
+import com.hedaro.musicplayer.ui.components.TrackRowMenuItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,6 +36,8 @@ fun FavoritesScreen(
     viewModel: FavoritesViewModel = hiltViewModel(),
 ) {
     val tracks by viewModel.tracks.collectAsStateWithLifecycle()
+    val playlists by viewModel.playlists.collectAsStateWithLifecycle()
+    var trackForPlaylist by remember { mutableStateOf<Track?>(null) }
 
     Scaffold(
         modifier = modifier,
@@ -56,6 +64,7 @@ fun FavoritesScreen(
                 Text(stringResource(R.string.empty_favorites))
             }
         } else {
+            val addLabel = stringResource(R.string.action_add_to_playlist)
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = innerPadding,
@@ -65,9 +74,27 @@ fun FavoritesScreen(
                         track = track,
                         onClick = { viewModel.play(index) },
                         onToggleFavorite = { viewModel.toggleFavorite(track) },
+                        menuItems = listOf(
+                            TrackRowMenuItem(addLabel) { trackForPlaylist = track },
+                        ),
                     )
                 }
             }
         }
+    }
+
+    trackForPlaylist?.let { track ->
+        AddToPlaylistDialog(
+            playlists = playlists,
+            onAddToExisting = { playlistId ->
+                viewModel.addToPlaylist(playlistId, track.id)
+                trackForPlaylist = null
+            },
+            onCreateAndAdd = { name ->
+                viewModel.createPlaylistWithTrack(name, track.id)
+                trackForPlaylist = null
+            },
+            onDismiss = { trackForPlaylist = null },
+        )
     }
 }

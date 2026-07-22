@@ -28,8 +28,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hedaro.musicplayer.R
+import com.hedaro.musicplayer.data.model.Track
 import com.hedaro.musicplayer.data.model.TrackSort
+import com.hedaro.musicplayer.ui.components.AddToPlaylistDialog
 import com.hedaro.musicplayer.ui.components.TrackRow
+import com.hedaro.musicplayer.ui.components.TrackRowMenuItem
 
 @Composable
 fun LibraryScreen(
@@ -38,6 +41,8 @@ fun LibraryScreen(
 ) {
     val tracks by viewModel.tracks.collectAsStateWithLifecycle()
     val sort by viewModel.sort.collectAsStateWithLifecycle()
+    val playlists by viewModel.playlists.collectAsStateWithLifecycle()
+    var trackForPlaylist by remember { mutableStateOf<Track?>(null) }
 
     Scaffold(
         modifier = modifier,
@@ -59,6 +64,7 @@ fun LibraryScreen(
                 Text(stringResource(R.string.empty_library))
             }
         } else {
+            val addLabel = stringResource(R.string.action_add_to_playlist)
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = innerPadding,
@@ -68,10 +74,28 @@ fun LibraryScreen(
                         track = track,
                         onClick = { viewModel.play(index) },
                         onToggleFavorite = { viewModel.toggleFavorite(track) },
+                        menuItems = listOf(
+                            TrackRowMenuItem(addLabel) { trackForPlaylist = track },
+                        ),
                     )
                 }
             }
         }
+    }
+
+    trackForPlaylist?.let { track ->
+        AddToPlaylistDialog(
+            playlists = playlists,
+            onAddToExisting = { playlistId ->
+                viewModel.addToPlaylist(playlistId, track.id)
+                trackForPlaylist = null
+            },
+            onCreateAndAdd = { name ->
+                viewModel.createPlaylistWithTrack(name, track.id)
+                trackForPlaylist = null
+            },
+            onDismiss = { trackForPlaylist = null },
+        )
     }
 }
 

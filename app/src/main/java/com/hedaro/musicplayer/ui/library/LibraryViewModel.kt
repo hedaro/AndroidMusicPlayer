@@ -2,9 +2,11 @@ package com.hedaro.musicplayer.ui.library
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.hedaro.musicplayer.data.model.Playlist
 import com.hedaro.musicplayer.data.model.Track
 import com.hedaro.musicplayer.data.model.TrackSort
 import com.hedaro.musicplayer.data.repository.MusicRepository
+import com.hedaro.musicplayer.data.repository.PlaylistRepository
 import com.hedaro.musicplayer.playback.PlaybackConnection
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,6 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val musicRepository: MusicRepository,
+    private val playlistRepository: PlaylistRepository,
     private val playbackConnection: PlaybackConnection,
 ) : ViewModel() {
 
@@ -37,8 +40,25 @@ class LibraryViewModel @Inject constructor(
             .flatMapLatest { musicRepository.observeTracks(it) }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
+    /** Playlists offered in the "add to playlist" dialog. */
+    val playlists: StateFlow<List<Playlist>> =
+        playlistRepository.observePlaylists()
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
     fun setSort(newSort: TrackSort) {
         _sort.value = newSort
+    }
+
+    fun addToPlaylist(playlistId: Long, trackId: Long) {
+        viewModelScope.launch { playlistRepository.addTrack(playlistId, trackId) }
+    }
+
+    fun createPlaylistWithTrack(name: String, trackId: Long) {
+        if (name.isBlank()) return
+        viewModelScope.launch {
+            val playlistId = playlistRepository.createPlaylist(name)
+            playlistRepository.addTrack(playlistId, trackId)
+        }
     }
 
     /** Play the whole library starting at [index] (in the current sort order). */
