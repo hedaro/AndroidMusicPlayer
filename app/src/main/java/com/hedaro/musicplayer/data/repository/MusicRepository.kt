@@ -2,6 +2,7 @@ package com.hedaro.musicplayer.data.repository
 
 import com.hedaro.musicplayer.data.local.MediaStoreDataSource
 import com.hedaro.musicplayer.data.local.db.dao.TrackStatsDao
+import com.hedaro.musicplayer.data.local.db.entity.TrackStatsEntity
 import com.hedaro.musicplayer.data.model.Track
 import com.hedaro.musicplayer.data.model.TrackSort
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +42,9 @@ class MusicRepository @Inject constructor(
     /** Just the favorited tracks, ordered by [sort]. */
     fun observeFavorites(sort: TrackSort = TrackSort.TITLE): Flow<List<Track>> =
         observeTracks(sort).map { list -> list.filter(Track::isFavorite) }
+
+    /** Observe the stored stats (favorite + play count) for a single track; null if none yet. */
+    fun observeStats(trackId: Long): Flow<TrackStatsEntity?> = trackStatsDao.observe(trackId)
 
     /** Turn a track's favorite flag on/off. */
     suspend fun setFavorite(trackId: Long, favorite: Boolean) =
