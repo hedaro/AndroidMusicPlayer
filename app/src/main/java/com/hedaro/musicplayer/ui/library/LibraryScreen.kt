@@ -3,14 +3,12 @@ package com.hedaro.musicplayer.ui.library
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Sort
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material.icons.filled.Shuffle
@@ -21,28 +19,24 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hedaro.musicplayer.R
 import com.hedaro.musicplayer.data.model.Track
 import com.hedaro.musicplayer.data.model.TrackSort
 import com.hedaro.musicplayer.ui.components.AddToPlaylistDialog
+import com.hedaro.musicplayer.ui.components.SearchField
 import com.hedaro.musicplayer.ui.components.TrackRow
 import com.hedaro.musicplayer.ui.components.TrackRowMenuItem
 
@@ -133,8 +127,7 @@ private fun LibraryTopBar(
         TopAppBar(
             title = { Text(stringResource(R.string.nav_library)) },
             actions = {
-                // Search toggle. Tinted when a filter is active but the field is collapsed,
-                // so it's clear the list is still filtered.
+                // Search toggle. Tinted when a filter is active but the field is collapsed.
                 IconButton(onClick = onToggleSearch) {
                     Icon(
                         imageVector = if (searchActive) Icons.Filled.SearchOff else Icons.Filled.Search,
@@ -172,26 +165,10 @@ private fun LibraryTopBar(
         )
 
         if (searchActive) {
-            val focusRequester = remember { FocusRequester() }
-            LaunchedEffect(Unit) { focusRequester.requestFocus() }
-            OutlinedTextField(
-                value = query,
-                onValueChange = onQueryChange,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp)
-                    .padding(bottom = 8.dp)
-                    .focusRequester(focusRequester),
-                singleLine = true,
-                placeholder = { Text(stringResource(R.string.search_hint)) },
-                leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
-                trailingIcon = {
-                    if (query.isNotEmpty()) {
-                        IconButton(onClick = { onQueryChange("") }) {
-                            Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.cd_clear_search))
-                        }
-                    }
-                },
+            SearchField(
+                query = query,
+                onQueryChange = onQueryChange,
+                placeholder = stringResource(R.string.search_hint),
             )
         }
     }

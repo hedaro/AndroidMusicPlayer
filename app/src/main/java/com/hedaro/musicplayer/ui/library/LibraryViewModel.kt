@@ -8,6 +8,7 @@ import com.hedaro.musicplayer.data.model.TrackSort
 import com.hedaro.musicplayer.data.repository.MusicRepository
 import com.hedaro.musicplayer.data.repository.PlaylistRepository
 import com.hedaro.musicplayer.playback.PlaybackConnection
+import com.hedaro.musicplayer.util.matchesQuery
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,11 +61,6 @@ class LibraryViewModel @Inject constructor(
     fun setQuery(newQuery: String) {
         _query.value = newQuery
     }
-
-    private fun Track.matchesQuery(q: String): Boolean =
-        title.contains(q, ignoreCase = true) ||
-            artist.contains(q, ignoreCase = true) ||
-            album.contains(q, ignoreCase = true)
 
     fun addToPlaylist(playlistId: Long, trackId: Long) {
         viewModelScope.launch { playlistRepository.addTrack(playlistId, trackId) }
