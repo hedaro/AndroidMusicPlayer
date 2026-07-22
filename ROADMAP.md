@@ -34,10 +34,10 @@ Step-by-step plan for the Music Player. We build, tune, and polish each step bef
 - [x] `Player.Listener` increments play count after ~5s of playback (once per play; → `incrementPlayCount`)
 - [x] No Hilt `PlaybackModule` needed — `PlaybackConnection` uses constructor injection
 
-## Step 5 — Ad seam (no SDK)
-- [ ] `AdProvider` interface + `NoOpAdProvider`
-- [ ] Hilt `AdModule` binding
-- [ ] Bottom `BannerSlot` wired into the app scaffold (invisible)
+## Step 5 — Ad seam (no SDK) ✅ (on branch feature/step-5-ad-seam; pending build verification)
+- [x] `AdProvider` interface + `NoOpAdProvider`
+- [x] Hilt `AdModule` binding (`@Binds`)
+- [x] Bottom `BannerSlot` wired into the app scaffold (invisible)
 
 ## Step 6 — UI layer
 - [ ] Theme + navigation graph
