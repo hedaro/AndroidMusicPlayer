@@ -3,6 +3,8 @@ package com.hedaro.musicplayer.data.repository
 import com.hedaro.musicplayer.data.local.MediaStoreDataSource
 import com.hedaro.musicplayer.data.local.db.dao.TrackStatsDao
 import com.hedaro.musicplayer.data.local.db.entity.TrackStatsEntity
+import com.hedaro.musicplayer.data.model.Album
+import com.hedaro.musicplayer.data.model.Folder
 import com.hedaro.musicplayer.data.model.Track
 import com.hedaro.musicplayer.data.model.TrackSort
 import kotlinx.coroutines.flow.Flow
@@ -42,6 +44,50 @@ class MusicRepository @Inject constructor(
     /** Just the favorited tracks, ordered by [sort]. */
     fun observeFavorites(sort: TrackSort = TrackSort.TITLE): Flow<List<Track>> =
         observeTracks(sort).map { list -> list.filter(Track::isFavorite) }
+
+    // --- Browsing: albums & folders (derived from the library) --------------
+
+    /** The library grouped into albums, sorted by album title. */
+    fun observeAlbums(): Flow<List<Album>> =
+        observeTracks().map { tracks ->
+            tracks.groupBy { it.albumId }
+                .map { (albumId, albumTracks) ->
+                    val first = albumTracks.first()
+                    Album(
+                        id = albumId,
+                        title = first.album,
+                        artist = first.artist,
+                        albumArtUri = first.albumArtUri,
+                        trackCount = albumTracks.size,
+                    )
+                }
+                .sortedBy { it.title.lowercase() }
+        }
+
+    /** Tracks of one album, ordered by track number then title. */
+    fun observeAlbumTracks(albumId: Long): Flow<List<Track>> =
+        observeTracks().map { tracks ->
+            tracks.filter { it.albumId == albumId }
+                .sortedWith(compareBy({ it.trackNumber ?: Int.MAX_VALUE }, { it.title.lowercase() }))
+        }
+
+    /** The library grouped into device folders, sorted by folder name. */
+    fun observeFolders(): Flow<List<Folder>> =
+        observeTracks().map { tracks ->
+            tracks.groupBy { it.folder }
+                .map { (path, folderTracks) ->
+                    Folder(
+                        path = path,
+                        name = path.substringAfterLast('/').ifBlank { path },
+                        trackCount = folderTracks.size,
+                    )
+                }
+                .sortedBy { it.name.lowercase() }
+        }
+
+    /** Tracks in one folder, ordered by title. */
+    fun observeFolderTracks(folderPath: String): Flow<List<Track>> =
+        observeTracks().map { tracks -> tracks.filter { it.folder == folderPath } }
 
     /** Observe the stored stats (favorite + play count) for a single track; null if none yet. */
     fun observeStats(trackId: Long): Flow<TrackStatsEntity?> = trackStatsDao.observe(trackId)
