@@ -41,11 +41,11 @@ Step-by-step plan for the Music Player. We build, tune, and polish each step bef
 
 ## Step 6 — UI layer (split into sub-steps, each its own branch + review/merge)
 
-### Step 6a — Foundations + Library (first sound!)
-- [ ] `PlaybackConnection.shufflePlay(tracks)` — start a list playing in random order
-- [ ] Navigation graph + routes; audio permission gate
-- [ ] Library screen: track list, sort menu (incl. **Most played**), tap-to-play, **Shuffle-play** button
-- [ ] `LibraryViewModel`; `TrackRow` component with favorite toggle
+### Step 6a — Foundations + Library (first sound!) ✅ (branch feature/step-6a-library; pending build verification)
+- [x] `PlaybackConnection.shufflePlay(tracks)` — start a list playing in random order
+- [x] Navigation graph + routes; audio permission gate
+- [x] Library screen: track list, sort menu (incl. **Most played**), tap-to-play, **Shuffle-play** button
+- [x] `LibraryViewModel`; `TrackRow` component with favorite toggle
 
 ### Step 6b — Now Playing + MiniPlayer
 - [ ] Now Playing screen: transport, seek bar, ±5/±10s step, **shuffle toggle**, repeat cycle, favorite
