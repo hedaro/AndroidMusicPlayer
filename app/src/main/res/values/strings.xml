@@ -55,6 +55,12 @@
     <string name="theme_light">Light</string>
     <string name="theme_dark">Dark</string>
 
+    <!-- Library browse tabs -->
+    <string name="tab_songs">Songs</string>
+    <string name="tab_albums">Albums</string>
+    <string name="tab_folders">Folders</string>
+    <string name="cd_folder">Folder</string>
+
     <!-- Empty states -->
     <string name="empty_library">No music found on this device.</string>
     <string name="empty_playlists">No playlists yet. Tap + to create one.</string>
