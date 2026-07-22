@@ -39,14 +39,27 @@ Step-by-step plan for the Music Player. We build, tune, and polish each step bef
 - [x] Hilt `AdModule` binding (`@Binds`)
 - [x] Bottom `BannerSlot` wired into the app scaffold (invisible)
 
-## Step 6 — UI layer
-- [ ] Theme + navigation graph
-- [ ] Library screen (list, permission gate, scan) with sort options incl. **Most played** (`TrackSort`)
-- [ ] Favorites view (screen/tab listing favorited tracks; playable as a queue)
-- [ ] Now Playing (transport, seek, ±5/±10s step, shuffle, repeat)
-- [ ] Playlists + Playlist detail (create, edit, reorder)
-- [ ] Reusable components (MiniPlayer, TrackRow w/ favorite toggle, SeekBar, StepButtons)
-- [ ] Favorite toggle on TrackRow + Now Playing; surface play count where useful
+## Step 6 — UI layer (split into sub-steps, each its own branch + review/merge)
+
+### Step 6a — Foundations + Library (first sound!)
+- [ ] `PlaybackConnection.shufflePlay(tracks)` — start a list playing in random order
+- [ ] Navigation graph + routes; audio permission gate
+- [ ] Library screen: track list, sort menu (incl. **Most played**), tap-to-play, **Shuffle-play** button
+- [ ] `LibraryViewModel`; `TrackRow` component with favorite toggle
+
+### Step 6b — Now Playing + MiniPlayer
+- [ ] Now Playing screen: transport, seek bar, ±5/±10s step, **shuffle toggle**, repeat cycle, favorite
+- [ ] MiniPlayer (persistent bottom bar), `NowPlayingViewModel`
+- [ ] Reusable components (SeekBar, StepButtons); surface play count where useful
+
+### Step 6c — Playlists + Favorites
+- [ ] Playlists list + detail (create, rename, delete, add/remove, reorder), **Shuffle-play** a playlist
+- [ ] Favorites view (favorited tracks as a playable queue)
+- [ ] Playlist/Favorites ViewModels; add-to-playlist flow
+
+**Shuffle (decided):** two behaviors — the Now Playing on/off **toggle** (binds to existing
+`toggleShuffle()`) and a dedicated **shuffle-play** action on the library & each playlist
+(new `shufflePlay()`, added in 6a).
 
 ## Step 7 — Housekeeping ✅
 - [x] Update `PROJECT_IDEAS.md` (revise ad line; move idea to *In Progress*)
