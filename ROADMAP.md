@@ -27,12 +27,12 @@ Step-by-step plan for the Music Player. We build, tune, and polish each step bef
 - [x] Hilt `DatabaseModule` (no `AppModule` needed — data source & repositories use constructor injection)
 - [x] Added `kotlinx-coroutines-android` dependency
 
-## Step 4 — Playback layer
-- [ ] `PlaybackService` (`MediaSessionService` + ExoPlayer)
-- [ ] `PlaybackConnection` (MediaController wrapper → `StateFlow`)
-- [ ] `PlaybackState` model
-- [ ] `Player.Listener` increments play count after ~5s of playback (once per play; → `TrackStatsDao.incrementPlayCount`)
-- [ ] Hilt `PlaybackModule`
+## Step 4 — Playback layer ✅ (on branch feature/step-4-playback; pending build verification)
+- [x] `PlaybackService` (`MediaSessionService` + ExoPlayer; audio focus, pause-on-noisy, notification)
+- [x] `PlaybackConnection` (MediaController wrapper → `StateFlow` + transport controls incl. ±5/±10s step)
+- [x] `PlaybackState` + `RepeatMode` model
+- [x] `Player.Listener` increments play count after ~5s of playback (once per play; → `incrementPlayCount`)
+- [x] No Hilt `PlaybackModule` needed — `PlaybackConnection` uses constructor injection
 
 ## Step 5 — Ad seam (no SDK)
 - [ ] `AdProvider` interface + `NoOpAdProvider`
