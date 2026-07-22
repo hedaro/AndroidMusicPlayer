@@ -34,6 +34,7 @@ import com.hedaro.musicplayer.ui.components.AddToPlaylistDialog
 import com.hedaro.musicplayer.ui.components.SearchField
 import com.hedaro.musicplayer.ui.components.TrackRow
 import com.hedaro.musicplayer.ui.components.TrackRowMenuItem
+import com.hedaro.musicplayer.ui.components.TrackSortMenu
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +43,7 @@ fun FavoritesScreen(
     viewModel: FavoritesViewModel = hiltViewModel(),
 ) {
     val tracks by viewModel.tracks.collectAsStateWithLifecycle()
+    val sort by viewModel.sort.collectAsStateWithLifecycle()
     val query by viewModel.query.collectAsStateWithLifecycle()
     val playlists by viewModel.playlists.collectAsStateWithLifecycle()
     var trackForPlaylist by remember { mutableStateOf<Track?>(null) }
@@ -68,6 +70,7 @@ fun FavoritesScreen(
                         IconButton(onClick = viewModel::shufflePlay) {
                             Icon(Icons.Filled.Shuffle, contentDescription = stringResource(R.string.cd_shuffle))
                         }
+                        TrackSortMenu(currentSort = sort, onSortSelected = viewModel::setSort)
                     },
                 )
                 if (searchActive) {
