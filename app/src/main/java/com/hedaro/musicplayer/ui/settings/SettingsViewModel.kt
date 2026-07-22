@@ -17,9 +17,12 @@ class SettingsViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
 ) : ViewModel() {
 
-    val themeMode: StateFlow<ThemeMode> =
+    // null = preference not loaded from disk yet. The splash screen stays up until this is
+    // non-null, so the first visible frame is already correctly themed (no flicker).
+    // Eagerly so loading starts as soon as the ViewModel is created (in the Activity).
+    val themeMode: StateFlow<ThemeMode?> =
         settingsRepository.themeMode
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), ThemeMode.SYSTEM)
+            .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     fun setThemeMode(mode: ThemeMode) {
         viewModelScope.launch { settingsRepository.setThemeMode(mode) }

@@ -3,4 +3,12 @@
     <!-- Base application theme. Compose drives the real UI theme (see ui/theme);
          this is the launch/system theme applied before Compose takes over. -->
     <style name="Theme.MusicPlayer" parent="android:Theme.Material.NoActionBar" />
+
+    <!-- Launch (splash) theme. Held on screen until the saved theme preference loads,
+         so the first Compose frame is already correctly themed (no flicker). -->
+    <style name="Theme.MusicPlayer.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/ic_launcher_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.MusicPlayer</item>
+    </style>
 </resources>

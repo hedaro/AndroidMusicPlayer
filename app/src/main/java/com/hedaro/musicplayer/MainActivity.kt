@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,16 +47,24 @@ class MainActivity : ComponentActivity() {
     /** Ad-free NoOpAdProvider today (see the `ads` package); injected by Hilt. */
     @Inject lateinit var adProvider: AdProvider
 
+    // Activity-scoped so the splash keep-condition can read the theme before Compose subscribes.
+    private val settingsViewModel: SettingsViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        // Hold the splash until the saved theme preference has loaded, so the first visible
+        // frame is already correctly themed (avoids a one-frame theme flicker).
+        splashScreen.setKeepOnScreenCondition { settingsViewModel.themeMode.value == null }
+
         enableEdgeToEdge()
         setContent {
-            val settingsViewModel: SettingsViewModel = hiltViewModel()
             val themeMode by settingsViewModel.themeMode.collectAsStateWithLifecycle()
             val darkTheme = when (themeMode) {
-                ThemeMode.SYSTEM -> isSystemInDarkTheme()
                 ThemeMode.LIGHT -> false
                 ThemeMode.DARK -> true
+                else -> isSystemInDarkTheme() // null (still loading) or SYSTEM
             }
             MusicPlayerTheme(darkTheme = darkTheme) {
                 MusicApp(adProvider = adProvider)
