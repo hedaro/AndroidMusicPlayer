@@ -52,10 +52,11 @@ Step-by-step plan for the Music Player. We build, tune, and polish each step bef
 - [x] MiniPlayer (persistent bottom bar), `NowPlayingViewModel`
 - [x] Reusable components (TrackSeekBar, StepControls); play count surfaced on Now Playing
 
-### Step 6c — Playlists + Favorites
-- [ ] Playlists list + detail (create, rename, delete, add/remove, reorder), **Shuffle-play** a playlist
-- [ ] Favorites view (favorited tracks as a playable queue)
-- [ ] Playlist/Favorites ViewModels; add-to-playlist flow
+### Step 6c — Playlists + Favorites ✅ (branch feature/step-6c-playlists; pending build verification)
+- [x] Playlists list + detail (create, rename, delete, add/remove, reorder via up/down), **Shuffle-play** a playlist
+- [x] Favorites view (favorited tracks as a playable queue)
+- [x] Playlist/Favorites ViewModels; add-to-playlist flow (from track overflow menu)
+- [x] Bottom navigation (Library / Favorites / Playlists)
 
 **Shuffle (decided):** two behaviors — the Now Playing on/off **toggle** (binds to existing
 `toggleShuffle()`) and a dedicated **shuffle-play** action on the library & each playlist
