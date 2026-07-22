@@ -4,17 +4,25 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hedaro.musicplayer.data.model.Playlist
 import com.hedaro.musicplayer.data.model.Track
+import com.hedaro.musicplayer.data.model.TrackSort
 import com.hedaro.musicplayer.data.repository.MusicRepository
 import com.hedaro.musicplayer.data.repository.PlaylistRepository
 import com.hedaro.musicplayer.playback.PlaybackConnection
+import com.hedaro.musicplayer.util.matchesQuery
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/** Backs the Favorites screen: the favorited tracks, playable as their own queue. */
+/** Backs the Favorites screen: the favorited tracks, sorted/filtered, playable as their own queue. */
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
     private val musicRepository: MusicRepository,
@@ -22,9 +30,27 @@ class FavoritesViewModel @Inject constructor(
     private val playbackConnection: PlaybackConnection,
 ) : ViewModel() {
 
+    private val _sort = MutableStateFlow(TrackSort.TITLE)
+    val sort: StateFlow<TrackSort> = _sort.asStateFlow()
+
+    private val _query = MutableStateFlow("")
+    val query: StateFlow<String> = _query.asStateFlow()
+
     val tracks: StateFlow<List<Track>> =
-        musicRepository.observeFavorites()
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+        combine(
+            _sort.flatMapLatest { musicRepository.observeFavorites(it) },
+            _query,
+        ) { favorites, query ->
+            if (query.isBlank()) favorites else favorites.filter { it.matchesQuery(query) }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun setSort(newSort: TrackSort) {
+        _sort.value = newSort
+    }
+
+    fun setQuery(newQuery: String) {
+        _query.value = newQuery
+    }
 
     /** Playlists offered in the "add to playlist" dialog. */
     val playlists: StateFlow<List<Playlist>> =

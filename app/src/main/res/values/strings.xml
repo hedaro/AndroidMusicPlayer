@@ -31,6 +31,8 @@
     <string name="cd_search">Search</string>
     <string name="cd_clear_search">Clear search</string>
     <string name="search_hint">Search library</string>
+    <string name="search_hint_favorites">Search favorites</string>
+    <string name="search_hint_playlist">Search playlist</string>
     <string name="empty_search_results">No matching tracks.</string>
 
     <!-- Sort options -->

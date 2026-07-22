@@ -1,15 +1,20 @@
 package com.hedaro.musicplayer.ui.favorites
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -26,8 +31,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hedaro.musicplayer.R
 import com.hedaro.musicplayer.data.model.Track
 import com.hedaro.musicplayer.ui.components.AddToPlaylistDialog
+import com.hedaro.musicplayer.ui.components.SearchField
 import com.hedaro.musicplayer.ui.components.TrackRow
 import com.hedaro.musicplayer.ui.components.TrackRowMenuItem
+import com.hedaro.musicplayer.ui.components.TrackSortMenu
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,22 +43,44 @@ fun FavoritesScreen(
     viewModel: FavoritesViewModel = hiltViewModel(),
 ) {
     val tracks by viewModel.tracks.collectAsStateWithLifecycle()
+    val sort by viewModel.sort.collectAsStateWithLifecycle()
+    val query by viewModel.query.collectAsStateWithLifecycle()
     val playlists by viewModel.playlists.collectAsStateWithLifecycle()
     var trackForPlaylist by remember { mutableStateOf<Track?>(null) }
+    var searchActive by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.nav_favorites)) },
-                actions = {
-                    if (tracks.isNotEmpty()) {
+            Column {
+                TopAppBar(
+                    title = { Text(stringResource(R.string.nav_favorites)) },
+                    actions = {
+                        IconButton(onClick = { searchActive = !searchActive }) {
+                            Icon(
+                                imageVector = if (searchActive) Icons.Filled.SearchOff else Icons.Filled.Search,
+                                contentDescription = stringResource(R.string.cd_search),
+                                tint = if (!searchActive && query.isNotBlank()) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    LocalContentColor.current
+                                },
+                            )
+                        }
                         IconButton(onClick = viewModel::shufflePlay) {
                             Icon(Icons.Filled.Shuffle, contentDescription = stringResource(R.string.cd_shuffle))
                         }
-                    }
-                },
-            )
+                        TrackSortMenu(currentSort = sort, onSortSelected = viewModel::setSort)
+                    },
+                )
+                if (searchActive) {
+                    SearchField(
+                        query = query,
+                        onQueryChange = viewModel::setQuery,
+                        placeholder = stringResource(R.string.search_hint_favorites),
+                    )
+                }
+            }
         },
     ) { innerPadding ->
         if (tracks.isEmpty()) {
@@ -61,7 +90,8 @@ fun FavoritesScreen(
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(stringResource(R.string.empty_favorites))
+                val message = if (query.isBlank()) R.string.empty_favorites else R.string.empty_search_results
+                Text(stringResource(message))
             }
         } else {
             val addLabel = stringResource(R.string.action_add_to_playlist)
