@@ -65,6 +65,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.activity.compose)
 
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+
     // Compose (BOM keeps all Compose artifacts on compatible versions)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)
