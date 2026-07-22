@@ -38,7 +38,32 @@
     <!-- Playback notification channel -->
     <string name="playback_channel_name">Playback</string>
 
+    <!-- Navigation (favorites) -->
+    <string name="nav_favorites">Favorites</string>
+
     <!-- Empty states -->
     <string name="empty_library">No music found on this device.</string>
-    <string name="empty_playlists">No playlists yet.</string>
+    <string name="empty_playlists">No playlists yet. Tap + to create one.</string>
+    <string name="empty_favorites">No favorite tracks yet. Tap the heart on a song.</string>
+    <string name="empty_playlist_detail">No tracks yet. Add some from the library.</string>
+
+    <!-- Playlist actions -->
+    <string name="action_play">Play</string>
+    <string name="action_shuffle">Shuffle</string>
+    <string name="action_create">Create</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_rename">Rename</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_add_to_playlist">Add to playlist</string>
+    <string name="action_remove_from_playlist">Remove from playlist</string>
+    <string name="action_new_playlist">New playlist…</string>
+    <string name="playlist_name_hint">Playlist name</string>
+    <string name="playlist_track_count">%1$d tracks</string>
+    <string name="dialog_new_playlist_title">New playlist</string>
+    <string name="dialog_delete_playlist_title">Delete playlist?</string>
+    <string name="dialog_delete_playlist_message">This deletes the playlist only. Your music files are not removed.</string>
+    <string name="cd_create_playlist">Create playlist</string>
+    <string name="cd_more">More options</string>
+    <string name="cd_move_up">Move up</string>
+    <string name="cd_move_down">Move down</string>
 </resources>
