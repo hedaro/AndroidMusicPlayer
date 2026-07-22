@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,11 +24,13 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.hedaro.musicplayer.ads.AdProvider
+import com.hedaro.musicplayer.data.preferences.ThemeMode
 import com.hedaro.musicplayer.ui.components.MiniPlayer
 import com.hedaro.musicplayer.ui.navigation.MusicNavHost
 import com.hedaro.musicplayer.ui.navigation.Screen
 import com.hedaro.musicplayer.ui.navigation.TopLevelDestination
 import com.hedaro.musicplayer.ui.nowplaying.NowPlayingViewModel
+import com.hedaro.musicplayer.ui.settings.SettingsViewModel
 import com.hedaro.musicplayer.ui.theme.MusicPlayerTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -46,7 +49,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            MusicPlayerTheme {
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val themeMode by settingsViewModel.themeMode.collectAsStateWithLifecycle()
+            val darkTheme = when (themeMode) {
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+            }
+            MusicPlayerTheme(darkTheme = darkTheme) {
                 MusicApp(adProvider = adProvider)
             }
         }
