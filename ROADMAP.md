@@ -17,14 +17,15 @@ Step-by-step plan for the Music Player. We build, tune, and polish each step bef
 - [x] `ui/theme/` (Color, Type, Theme)
 - [x] Compiles and launches to an empty scaffold
 
-## Step 3 — Data layer
-- [ ] Domain models: `Track` (incl. `isFavorite: Boolean`, `playCount: Int`), `Playlist`, `Album`
-- [ ] `MediaStoreDataSource` (query device audio + metadata)
-- [ ] Room: `MusicDatabase`, `PlaylistDao`, `PlaylistEntity`, `PlaylistTrackCrossRef`
-- [ ] Room: `TrackStatsEntity` (`trackId` PK, `isFavorite`, `playCount`) + `TrackStatsDao`
-      (`setFavorite`, `incrementPlayCount`, `observeStats`)
-- [ ] `MusicRepository` (merge MediaStore tracks with Room stats), `PlaylistRepository`
-- [ ] Hilt `AppModule`, `DatabaseModule`
+## Step 3 — Data layer ✅ (on branch feature/step-3-data-layer; pending build verification)
+- [x] Domain models: `Track` (incl. `isFavorite: Boolean`, `playCount: Int`), `Playlist`, `Album`, `TrackSort`
+- [x] `MediaStoreDataSource` (live `Flow` via ContentObserver; queries on IO)
+- [x] Room: `MusicDatabase`, `PlaylistDao`, `PlaylistEntity`, `PlaylistTrackCrossRef`
+- [x] Room: `TrackStatsEntity` (`trackId` PK, `isFavorite`, `playCount`) + `TrackStatsDao`
+      (`setFavorite`, `incrementPlayCount` as atomic upserts, `observeAll`)
+- [x] `MusicRepository` (merge MediaStore tracks with Room stats + sort), `PlaylistRepository`
+- [x] Hilt `DatabaseModule` (no `AppModule` needed — data source & repositories use constructor injection)
+- [x] Added `kotlinx-coroutines-android` dependency
 
 ## Step 4 — Playback layer
 - [ ] `PlaybackService` (`MediaSessionService` + ExoPlayer)
