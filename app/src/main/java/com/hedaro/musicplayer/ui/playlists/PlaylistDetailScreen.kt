@@ -1,5 +1,6 @@
 package com.hedaro.musicplayer.ui.playlists
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -27,6 +29,7 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -35,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -42,10 +46,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hedaro.musicplayer.R
+import com.hedaro.musicplayer.data.model.Track
 import com.hedaro.musicplayer.ui.components.PlaylistNameDialog
 import com.hedaro.musicplayer.ui.components.SearchField
 import com.hedaro.musicplayer.ui.components.TrackRow
 import com.hedaro.musicplayer.ui.components.TrackRowMenuItem
+import sh.calvin.reorderable.ReorderableItem
+import sh.calvin.reorderable.rememberReorderableLazyListState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -146,26 +153,27 @@ fun PlaylistDetailScreen(
                     }
                 }
 
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    itemsIndexed(tracks, key = { _, track -> track.id }) { index, track ->
-                        val menuItems = buildList {
-                            // Reordering is only meaningful on the full list, so hide it while searching.
-                            if (query.isBlank()) {
-                                if (index > 0) {
-                                    add(TrackRowMenuItem(stringResource(R.string.cd_move_up)) { viewModel.move(index, index - 1) })
-                                }
-                                if (index < tracks.lastIndex) {
-                                    add(TrackRowMenuItem(stringResource(R.string.cd_move_down)) { viewModel.move(index, index + 1) })
-                                }
-                            }
-                            add(TrackRowMenuItem(stringResource(R.string.action_remove_from_playlist)) { viewModel.removeTrack(track) })
+                if (query.isBlank()) {
+                    // Full playlist: long-press a row to drag-reorder; order persists on drop.
+                    ReorderableTrackList(
+                        tracks = tracks,
+                        onPlay = viewModel::play,
+                        onToggleFavorite = viewModel::toggleFavorite,
+                        onRemove = viewModel::removeTrack,
+                        onReorder = viewModel::reorder,
+                    )
+                } else {
+                    // Filtered view: reordering disabled (would apply to a subset).
+                    val removeLabel = stringResource(R.string.action_remove_from_playlist)
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        itemsIndexed(tracks, key = { _, track -> track.id }) { index, track ->
+                            TrackRow(
+                                track = track,
+                                onClick = { viewModel.play(index) },
+                                onToggleFavorite = { viewModel.toggleFavorite(track) },
+                                menuItems = listOf(TrackRowMenuItem(removeLabel) { viewModel.removeTrack(track) }),
+                            )
                         }
-                        TrackRow(
-                            track = track,
-                            onClick = { viewModel.play(index) },
-                            onToggleFavorite = { viewModel.toggleFavorite(track) },
-                            menuItems = menuItems,
-                        )
                     }
                 }
             }
@@ -203,5 +211,43 @@ fun PlaylistDetailScreen(
                 }
             },
         )
+    }
+}
+
+@Composable
+private fun ReorderableTrackList(
+    tracks: List<Track>,
+    onPlay: (Int) -> Unit,
+    onToggleFavorite: (Track) -> Unit,
+    onRemove: (Track) -> Unit,
+    onReorder: (List<Long>) -> Unit,
+) {
+    val lazyListState = rememberLazyListState()
+    // Local copy so drags animate smoothly; re-syncs when the source list changes.
+    var items by remember { mutableStateOf(tracks) }
+    LaunchedEffect(tracks) { items = tracks }
+
+    val reorderableState = rememberReorderableLazyListState(lazyListState) { from, to ->
+        items = items.toMutableList().apply { add(to.index, removeAt(from.index)) }
+    }
+
+    val removeLabel = stringResource(R.string.action_remove_from_playlist)
+    LazyColumn(state = lazyListState, modifier = Modifier.fillMaxSize()) {
+        itemsIndexed(items, key = { _, track -> track.id }) { index, track ->
+            ReorderableItem(reorderableState, key = track.id) { isDragging ->
+                val elevation by animateDpAsState(if (isDragging) 6.dp else 0.dp, label = "dragElevation")
+                Surface(shadowElevation = elevation) {
+                    TrackRow(
+                        track = track,
+                        onClick = { onPlay(index) },
+                        onToggleFavorite = { onToggleFavorite(track) },
+                        menuItems = listOf(TrackRowMenuItem(removeLabel) { onRemove(track) }),
+                        modifier = Modifier.longPressDraggableHandle(
+                            onDragStopped = { onReorder(items.map { it.id }) },
+                        ),
+                    )
+                }
+            }
+        }
     }
 }

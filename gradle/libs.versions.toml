@@ -35,6 +35,9 @@ datastore = "1.1.1"
 # Splash screen
 coreSplashscreen = "1.0.1"
 
+# Drag-to-reorder for Compose lists
+reorderable = "2.4.3"
+
 [libraries]
 # Core / lifecycle / activity
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -79,6 +82,9 @@ androidx-datastore-preferences = { group = "androidx.datastore", name = "datasto
 
 # Splash screen
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+
+# Drag-to-reorder
+reorderable = { group = "sh.calvin.reorderable", name = "reorderable", version.ref = "reorderable" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
