@@ -4,10 +4,13 @@
 /.idea/*
 !/.idea/codeStyles
 .DS_Store
-/build
+# Build outputs (any module: root, app/, etc.)
+build/
 /captures
 .externalNativeBuild
 .cxx
+# Kotlin compiler working/session directory
+.kotlin/
 local.properties
 *.keystore
 !debug.keystore
