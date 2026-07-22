@@ -23,6 +23,14 @@
     <string name="cd_forward_5">Forward 5 seconds</string>
     <string name="cd_forward_10">Forward 10 seconds</string>
     <string name="cd_album_art">Album art</string>
+    <string name="cd_toggle_favorite">Toggle favorite</string>
+    <string name="cd_sort">Sort</string>
+
+    <!-- Sort options -->
+    <string name="sort_title">Title</string>
+    <string name="sort_artist">Artist</string>
+    <string name="sort_recently_added">Recently added</string>
+    <string name="sort_most_played">Most played</string>
 
     <!-- Playback notification channel -->
     <string name="playback_channel_name">Playback</string>

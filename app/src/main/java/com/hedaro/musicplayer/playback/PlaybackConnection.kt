@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -59,7 +60,22 @@ class PlaybackConnection @Inject constructor(
     fun playTracks(tracks: List<Track>, startIndex: Int = 0) {
         val c = controller ?: return
         if (tracks.isEmpty()) return
+        c.shuffleModeEnabled = false
         c.setMediaItems(tracks.map { it.toMediaItem() }, startIndex.coerceIn(0, tracks.lastIndex), 0L)
+        c.prepare()
+        c.play()
+    }
+
+    /**
+     * Shuffle-play entry point: start the whole [tracks] list playing in random order.
+     * Enables shuffle mode and begins from a random track.
+     */
+    fun shufflePlay(tracks: List<Track>) {
+        val c = controller ?: return
+        if (tracks.isEmpty()) return
+        c.shuffleModeEnabled = true
+        val startIndex = Random.nextInt(tracks.size)
+        c.setMediaItems(tracks.map { it.toMediaItem() }, startIndex, 0L)
         c.prepare()
         c.play()
     }

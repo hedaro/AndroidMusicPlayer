@@ -69,7 +69,11 @@ class MediaStoreDataSource @Inject constructor(
             MediaStore.Audio.Media.TRACK,
             MediaStore.Audio.Media.DATE_ADDED,
         )
-        val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0"
+        // Include unclassified audio too: freshly-added files can have IS_MUSIC = NULL until a full
+        // media scan runs (e.g. dragging files onto the emulator). `NULL != 0` is not true in SQL,
+        // so a plain `!= 0` filter would wrongly hide them. Only exclude explicit non-music.
+        val selection =
+            "${MediaStore.Audio.Media.IS_MUSIC} != 0 OR ${MediaStore.Audio.Media.IS_MUSIC} IS NULL"
         val sortOrder = "${MediaStore.Audio.Media.TITLE} COLLATE NOCASE ASC"
 
         val tracks = mutableListOf<Track>()
