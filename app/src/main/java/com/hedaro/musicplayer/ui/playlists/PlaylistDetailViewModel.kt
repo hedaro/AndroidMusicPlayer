@@ -8,9 +8,13 @@ import com.hedaro.musicplayer.data.repository.MusicRepository
 import com.hedaro.musicplayer.data.repository.PlaylistRepository
 import com.hedaro.musicplayer.playback.PlaybackConnection
 import com.hedaro.musicplayer.ui.navigation.Screen
+import com.hedaro.musicplayer.util.matchesQuery
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -28,9 +32,17 @@ class PlaylistDetailViewModel @Inject constructor(
     private val playlistId: Long =
         savedStateHandle.get<String>(Screen.PlaylistDetail.ARG_PLAYLIST_ID)?.toLongOrNull() ?: 0L
 
+    private val _query = MutableStateFlow("")
+    val query: StateFlow<String> = _query.asStateFlow()
+
     val tracks: StateFlow<List<Track>> =
-        playlistRepository.observePlaylistTracks(playlistId)
-            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+        combine(playlistRepository.observePlaylistTracks(playlistId), _query) { list, query ->
+            if (query.isBlank()) list else list.filter { it.matchesQuery(query) }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    fun setQuery(newQuery: String) {
+        _query.value = newQuery
+    }
 
     val name: StateFlow<String> =
         playlistRepository.observePlaylists()
@@ -49,8 +61,13 @@ class PlaylistDetailViewModel @Inject constructor(
         viewModelScope.launch { playlistRepository.removeTrack(playlistId, track.id) }
     }
 
-    /** Move the track at [fromIndex] to [toIndex] and persist the new order. */
+    /**
+     * Move the track at [fromIndex] to [toIndex] and persist the new order. No-op while a search
+     * filter is active, since indices/list would refer to the filtered subset (the UI also hides
+     * reordering during search).
+     */
     fun move(fromIndex: Int, toIndex: Int) {
+        if (_query.value.isNotBlank()) return
         val current = tracks.value
         if (fromIndex !in current.indices || toIndex !in current.indices) return
         val reordered = current.toMutableList().apply { add(toIndex, removeAt(fromIndex)) }

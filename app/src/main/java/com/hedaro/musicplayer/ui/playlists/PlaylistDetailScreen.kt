@@ -13,6 +13,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material.icons.filled.Shuffle
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -21,6 +23,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.hedaro.musicplayer.R
 import com.hedaro.musicplayer.ui.components.PlaylistNameDialog
+import com.hedaro.musicplayer.ui.components.SearchField
 import com.hedaro.musicplayer.ui.components.TrackRow
 import com.hedaro.musicplayer.ui.components.TrackRowMenuItem
 
@@ -51,40 +56,62 @@ fun PlaylistDetailScreen(
 ) {
     val tracks by viewModel.tracks.collectAsStateWithLifecycle()
     val name by viewModel.name.collectAsStateWithLifecycle()
+    val query by viewModel.query.collectAsStateWithLifecycle()
 
     var menuOpen by remember { mutableStateOf(false) }
     var showRename by remember { mutableStateOf(false) }
     var showDelete by remember { mutableStateOf(false) }
+    var searchActive by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier,
         topBar = {
-            TopAppBar(
-                title = { Text(name) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.cd_back),
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { menuOpen = true }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.cd_more))
-                    }
-                    DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.action_rename)) },
-                            onClick = { showRename = true; menuOpen = false },
-                        )
-                        DropdownMenuItem(
-                            text = { Text(stringResource(R.string.action_delete)) },
-                            onClick = { showDelete = true; menuOpen = false },
-                        )
-                    }
-                },
-            )
+            Column {
+                TopAppBar(
+                    title = { Text(name) },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.cd_back),
+                            )
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { searchActive = !searchActive }) {
+                            Icon(
+                                imageVector = if (searchActive) Icons.Filled.SearchOff else Icons.Filled.Search,
+                                contentDescription = stringResource(R.string.cd_search),
+                                tint = if (!searchActive && query.isNotBlank()) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    LocalContentColor.current
+                                },
+                            )
+                        }
+                        IconButton(onClick = { menuOpen = true }) {
+                            Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.cd_more))
+                        }
+                        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.action_rename)) },
+                                onClick = { showRename = true; menuOpen = false },
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.action_delete)) },
+                                onClick = { showDelete = true; menuOpen = false },
+                            )
+                        }
+                    },
+                )
+                if (searchActive) {
+                    SearchField(
+                        query = query,
+                        onQueryChange = viewModel::setQuery,
+                        placeholder = stringResource(R.string.search_hint_playlist),
+                    )
+                }
+            }
         },
     ) { innerPadding ->
         if (tracks.isEmpty()) {
@@ -94,7 +121,8 @@ fun PlaylistDetailScreen(
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(stringResource(R.string.empty_playlist_detail))
+                val message = if (query.isBlank()) R.string.empty_playlist_detail else R.string.empty_search_results
+                Text(stringResource(message))
             }
         } else {
             Column(
@@ -121,11 +149,14 @@ fun PlaylistDetailScreen(
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     itemsIndexed(tracks, key = { _, track -> track.id }) { index, track ->
                         val menuItems = buildList {
-                            if (index > 0) {
-                                add(TrackRowMenuItem(stringResource(R.string.cd_move_up)) { viewModel.move(index, index - 1) })
-                            }
-                            if (index < tracks.lastIndex) {
-                                add(TrackRowMenuItem(stringResource(R.string.cd_move_down)) { viewModel.move(index, index + 1) })
+                            // Reordering is only meaningful on the full list, so hide it while searching.
+                            if (query.isBlank()) {
+                                if (index > 0) {
+                                    add(TrackRowMenuItem(stringResource(R.string.cd_move_up)) { viewModel.move(index, index - 1) })
+                                }
+                                if (index < tracks.lastIndex) {
+                                    add(TrackRowMenuItem(stringResource(R.string.cd_move_down)) { viewModel.move(index, index + 1) })
+                                }
                             }
                             add(TrackRowMenuItem(stringResource(R.string.action_remove_from_playlist)) { viewModel.removeTrack(track) })
                         }
