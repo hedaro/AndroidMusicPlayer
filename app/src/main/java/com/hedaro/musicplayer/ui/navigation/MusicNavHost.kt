@@ -7,10 +7,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.hedaro.musicplayer.ui.components.AudioPermissionGate
 import com.hedaro.musicplayer.ui.library.LibraryScreen
+import com.hedaro.musicplayer.ui.nowplaying.NowPlayingScreen
 
 /**
- * App navigation graph. Currently hosts the Library destination (gated behind audio permission);
- * Now Playing and Playlists routes are added in Steps 6b / 6c.
+ * App navigation graph: Library (permission-gated) and the full Now Playing screen.
+ * Playlists routes are added in Step 6c.
  */
 @Composable
 fun MusicNavHost(
@@ -26,6 +27,9 @@ fun MusicNavHost(
             AudioPermissionGate {
                 LibraryScreen()
             }
+        }
+        composable(Screen.NowPlaying.route) {
+            NowPlayingScreen(onBack = { navController.popBackStack() })
         }
     }
 }
