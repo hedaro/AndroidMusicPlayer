@@ -7,6 +7,8 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.hedaro.musicplayer.ui.browse.AlbumDetailScreen
+import com.hedaro.musicplayer.ui.browse.FolderDetailScreen
 import com.hedaro.musicplayer.ui.components.AudioPermissionGate
 import com.hedaro.musicplayer.ui.favorites.FavoritesScreen
 import com.hedaro.musicplayer.ui.library.LibraryScreen
@@ -30,6 +32,8 @@ fun MusicNavHost(
             AudioPermissionGate {
                 LibraryScreen(
                     onOpenSettings = { navController.navigate(Screen.Settings.route) },
+                    onOpenAlbum = { albumId -> navController.navigate(Screen.AlbumDetail.createRoute(albumId)) },
+                    onOpenFolder = { path -> navController.navigate(Screen.FolderDetail.createRoute(path)) },
                 )
             }
         }
@@ -48,6 +52,22 @@ fun MusicNavHost(
             ),
         ) {
             PlaylistDetailScreen(onBack = { navController.popBackStack() })
+        }
+        composable(
+            route = Screen.AlbumDetail.route,
+            arguments = listOf(
+                navArgument(Screen.AlbumDetail.ARG_ALBUM_ID) { type = NavType.StringType },
+            ),
+        ) {
+            AlbumDetailScreen(onBack = { navController.popBackStack() })
+        }
+        composable(
+            route = Screen.FolderDetail.route,
+            arguments = listOf(
+                navArgument(Screen.FolderDetail.ARG_FOLDER_PATH) { type = NavType.StringType },
+            ),
+        ) {
+            FolderDetailScreen(onBack = { navController.popBackStack() })
         }
         composable(Screen.NowPlaying.route) {
             NowPlayingScreen(onBack = { navController.popBackStack() })
