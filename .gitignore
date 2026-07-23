@@ -14,3 +14,6 @@ build/
 local.properties
 *.keystore
 !debug.keystore
+# Release signing — never commit the keystore or its credentials
+*.jks
+keystore.properties

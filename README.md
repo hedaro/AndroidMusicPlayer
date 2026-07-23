@@ -44,6 +44,24 @@ A clean, ad-free Android music player for the local device library — built for
 3. Let Gradle sync finish, then **Run** on a device/emulator (API 26+).
 4. On first launch the app requests audio permission and scans your local library.
 
+## Release build (signing)
+
+Release builds are signed automatically when a `keystore.properties` file is present at the project
+root; without it, release builds are left unsigned (debug builds are unaffected).
+
+1. Generate a release keystore once (Android Studio: **Build > Generate Signed Bundle / APK > Create
+   new…**, or `keytool`). Keep the `.jks` outside version control (e.g. `keystore/release.jks`).
+2. Copy [`keystore.properties.example`](keystore.properties.example) to `keystore.properties` and fill in
+   your `storeFile` / `storePassword` / `keyAlias` / `keyPassword`.
+3. Build a signed artifact:
+   ```bash
+   ./gradlew assembleRelease   # signed APK  -> app/build/outputs/apk/release/
+   ./gradlew bundleRelease     # signed AAB  -> app/build/outputs/bundle/release/
+   ```
+
+`keystore.properties` and `*.jks` are git-ignored. **Back up the keystore + passwords** — the same key
+is required for every future update.
+
 ## Project structure
 
 ```
