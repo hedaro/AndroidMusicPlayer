@@ -8,14 +8,16 @@ A clean, ad-free Android music player for the local device library — built for
 
 ✅ Feature-complete. All planned features are implemented; see [`ROADMAP.md`](ROADMAP.md) for the build history.
 
-## Features (target)
+## Features
 
-- Playback: play / pause / stop / next / previous
-- Shuffle and loop (single track & whole playlist)
-- Seek bar with elapsed / remaining time + scrubbing
-- Touch-friendly step controls: ±5s / ±10s
-- Playlists: create, edit, reorder
-- Track metadata: title, artist, album, art, duration
+- Playback: play / pause / stop / next / previous, background playback with notification & lock-screen controls
+- Shuffle (toggle + shuffle-play) and loop (single track & whole playlist)
+- Seek bar with elapsed / remaining time + scrubbing; touch-friendly ±5s / ±10s step controls
+- Persistent **mini-player** (with progress line) + full **Now Playing** screen
+- **Library browsing**: Songs / Albums / Folders tabs, with sort (title / artist / recently-added / most-played) and **search**
+- **Favorites** + **play count** (per track); favorites view and sort-by-most-played
+- **Playlists**: create, rename, delete, add/remove, and **drag-to-reorder**
+- **Settings**: theme toggle — System / Light / Dark (persisted)
 - Local library scanning from device storage
 - **Ad-free.** Structured to allow strictly non-intrusive banner ads *if* published to the Play Store — no ad SDK ships today (see the `ads/` package).
 
@@ -66,12 +68,13 @@ is required for every future update.
 
 ```
 app/src/main/java/com/hedaro/musicplayer/
-├── data/        # models, MediaStore data source, Room DB, repositories
+├── data/        # models, MediaStore data source, Room DB, DataStore prefs, repositories
 ├── playback/    # Media3 service + MediaController connection
-├── ui/          # theme, navigation, screens (library / nowplaying / playlists), components
+├── ui/          # theme, navigation, components, and screens:
+│                #   library, nowplaying, favorites, playlists, browse (album/folder), settings
 ├── ads/         # ad seam: AdProvider interface + NoOpAdProvider (no SDK)
 ├── di/          # Hilt modules
-└── util/        # helpers (time formatting, permissions, constants)
+└── util/        # helpers (time formatting, permissions, search, constants)
 ```
 
 ## Ads policy

@@ -66,6 +66,26 @@ Step-by-step plan for the Music Player. We build, tune, and polish each step bef
 - [x] Update `PROJECT_IDEAS.md` (revise ad line; move idea to *In Progress*)
 
 ## Verification (per the plan)
-- [ ] `./gradlew assembleDebug` succeeds
-- [ ] Runs on device/emulator; requests audio permission; lists local tracks
-- [ ] Core loop: play → pause → next/prev → scrub → ±5/±10s → shuffle/repeat → background (notification controls) → playlist create/reorder/play
+- [x] `./gradlew assembleDebug` succeeds
+- [x] Runs on device/emulator; requests audio permission; lists local tracks
+- [x] Core loop: play → pause → next/prev → scrub → ±5/±10s → shuffle/repeat → background (notification controls) → playlist create/reorder/play
+
+---
+
+## Post-v1 polish ✅ (merged to main)
+
+Each shipped on its own `feature/*` branch, reviewed and merged:
+
+- [x] **Search** — Library, Favorites, and Playlist detail (shared `SearchField`)
+- [x] **Favorites sort** + **mini-player progress line** + Library header / splash polish
+- [x] **Settings + dark mode** — System / Light / Dark theme toggle, persisted via DataStore;
+      splash held until the preference loads (no flicker)
+- [x] **Folder / album browsing** — Songs / Albums / Folders tabs + drill-in detail screens
+- [x] **Drag-to-reorder** playlist tracks (long-press; `sh.calvin.reorderable`)
+- [x] **Release signing** — `signingConfigs.release` from git-ignored `keystore.properties`;
+      `MusicPlayer-<buildType>.apk` output naming (see README → *Release build*)
+
+### Backlog / next ideas (see `../PROJECT_IDEAS.md`)
+- Custom app icon; theming beyond Material defaults (accent color)
+- Sleep timer, gapless/crossfade, equalizer
+- Publish prep: `free`/`withAds` flavors, Play Console listing + privacy policy, `.aab`
