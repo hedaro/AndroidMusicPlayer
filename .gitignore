@@ -14,3 +14,8 @@ build/
 local.properties
 *.keystore
 !debug.keystore
+# Release signing — never commit the keystore or its credentials
+*.jks
+keystore.properties
+# Signed output from the "Generate Signed Bundle / APK" wizard
+/app/release/
