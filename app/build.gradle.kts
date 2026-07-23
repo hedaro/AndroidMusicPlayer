@@ -18,6 +18,11 @@ val keystoreProperties = Properties().apply {
     }
 }
 
+// Name build outputs "MusicPlayer-<buildType>.apk" instead of the default "app-<buildType>.apk".
+base {
+    archivesName.set("MusicPlayer")
+}
+
 android {
     namespace = "com.hedaro.musicplayer"
     compileSdk = 35
