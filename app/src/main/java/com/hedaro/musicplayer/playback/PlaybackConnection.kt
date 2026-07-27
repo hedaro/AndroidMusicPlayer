@@ -13,8 +13,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
@@ -36,6 +39,11 @@ class PlaybackConnection @Inject constructor(
 
     private val _playbackState = MutableStateFlow(PlaybackState())
     val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
+
+    // Emits when the user explicitly starts a song (tapping a track / shuffle-play), so the UI can
+    // open Now Playing. Deliberately NOT emitted on queue auto-advance or next/prev.
+    private val _manualPlaybackStart = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val manualPlaybackStart: SharedFlow<Unit> = _manualPlaybackStart.asSharedFlow()
 
     private var controller: MediaController? = null
 
@@ -75,11 +83,13 @@ class PlaybackConnection @Inject constructor(
             if (queueIndex >= 0) {
                 c.seekTo(queueIndex, 0L)
                 c.play()
+                _manualPlaybackStart.tryEmit(Unit)
                 return
             }
         }
         currentSource = source
         playTracks(tracks, startIndex)
+        _manualPlaybackStart.tryEmit(Unit)
     }
 
     /** Replace the queue with [tracks] and start playing from [startIndex]. */
@@ -105,6 +115,7 @@ class PlaybackConnection @Inject constructor(
         c.setMediaItems(tracks.map { it.toMediaItem() }, startIndex, 0L)
         c.prepare()
         c.play()
+        _manualPlaybackStart.tryEmit(Unit)
     }
 
     /** Index of the first queue item backing [trackId], or -1 if it isn't in the queue. */

@@ -19,6 +19,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -84,6 +85,18 @@ private fun MusicApp(adProvider: AdProvider) {
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
     val isTopLevel = TopLevelDestination.entries.any { it.screen.route == currentRoute }
     val showMiniPlayer = playback.currentTrackId != null && currentRoute != Screen.NowPlaying.route
+
+    // Manually starting a song (tap a track / shuffle-play) opens Now Playing. Queue auto-advance
+    // and next/prev don't emit this, so they leave the current screen alone.
+    LaunchedEffect(Unit) {
+        playerViewModel.manualPlaybackStart.collect {
+            navController.navigate(Screen.NowPlaying.route) {
+                launchSingleTop = true
+                // Replace the Queue screen if we're on it rather than stacking.
+                popUpTo(Screen.Queue.route) { inclusive = true }
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {

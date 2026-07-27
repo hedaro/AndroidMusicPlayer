@@ -7,6 +7,7 @@ import com.hedaro.musicplayer.playback.PlaybackConnection
 import com.hedaro.musicplayer.playback.PlaybackState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -35,6 +36,9 @@ class NowPlayingViewModel @Inject constructor(
 ) : ViewModel() {
 
     val playbackState: StateFlow<PlaybackState> = playbackConnection.playbackState
+
+    /** Fires when the user manually starts a song, so the host can open Now Playing. */
+    val manualPlaybackStart: SharedFlow<Unit> = playbackConnection.manualPlaybackStart
 
     /** Favorite + play count for whatever track is currently playing. */
     val extras: StateFlow<NowPlayingExtras> =
