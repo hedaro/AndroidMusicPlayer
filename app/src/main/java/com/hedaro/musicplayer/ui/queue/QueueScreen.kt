@@ -129,8 +129,8 @@ private fun QueueList(
         modifier = Modifier.fillMaxSize(),
         contentPadding = innerPadding,
     ) {
-        itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
-            ReorderableItem(reorderState, key = item.id) { isDragging ->
+        itemsIndexed(items, key = { _, item -> item.key }) { index, item ->
+            ReorderableItem(reorderState, key = item.key) { isDragging ->
                 val dismissState = rememberSwipeToDismissBoxState(
                     confirmValueChange = { value ->
                         if (value != SwipeToDismissBoxValue.Settled) {

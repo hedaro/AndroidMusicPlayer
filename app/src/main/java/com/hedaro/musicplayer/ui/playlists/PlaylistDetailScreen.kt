@@ -50,7 +50,7 @@ import com.hedaro.musicplayer.data.model.Track
 import com.hedaro.musicplayer.ui.components.PlaylistNameDialog
 import com.hedaro.musicplayer.ui.components.SearchField
 import com.hedaro.musicplayer.ui.components.TrackRow
-import com.hedaro.musicplayer.ui.components.TrackRowMenuItem
+import com.hedaro.musicplayer.ui.components.trackRowMenuItems
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -159,19 +159,24 @@ fun PlaylistDetailScreen(
                         tracks = tracks,
                         onPlay = viewModel::play,
                         onToggleFavorite = viewModel::toggleFavorite,
+                        onPlayNext = viewModel::playNext,
+                        onAddToQueue = viewModel::addToQueue,
                         onRemove = viewModel::removeTrack,
                         onReorder = viewModel::reorder,
                     )
                 } else {
                     // Filtered view: reordering disabled (would apply to a subset).
-                    val removeLabel = stringResource(R.string.action_remove_from_playlist)
                     LazyColumn(modifier = Modifier.fillMaxSize()) {
                         itemsIndexed(tracks, key = { _, track -> track.id }) { index, track ->
                             TrackRow(
                                 track = track,
                                 onClick = { viewModel.play(index) },
                                 onToggleFavorite = { viewModel.toggleFavorite(track) },
-                                menuItems = listOf(TrackRowMenuItem(removeLabel) { viewModel.removeTrack(track) }),
+                                menuItems = trackRowMenuItems(
+                                    onPlayNext = { viewModel.playNext(track) },
+                                    onAddToQueue = { viewModel.addToQueue(track) },
+                                    onRemoveFromPlaylist = { viewModel.removeTrack(track) },
+                                ),
                             )
                         }
                     }
@@ -219,6 +224,8 @@ private fun ReorderableTrackList(
     tracks: List<Track>,
     onPlay: (Int) -> Unit,
     onToggleFavorite: (Track) -> Unit,
+    onPlayNext: (Track) -> Unit,
+    onAddToQueue: (Track) -> Unit,
     onRemove: (Track) -> Unit,
     onReorder: (List<Long>) -> Unit,
 ) {
@@ -231,7 +238,6 @@ private fun ReorderableTrackList(
         items = items.toMutableList().apply { add(to.index, removeAt(from.index)) }
     }
 
-    val removeLabel = stringResource(R.string.action_remove_from_playlist)
     LazyColumn(state = lazyListState, modifier = Modifier.fillMaxSize()) {
         itemsIndexed(items, key = { _, track -> track.id }) { index, track ->
             ReorderableItem(reorderableState, key = track.id) { isDragging ->
@@ -241,7 +247,11 @@ private fun ReorderableTrackList(
                         track = track,
                         onClick = { onPlay(index) },
                         onToggleFavorite = { onToggleFavorite(track) },
-                        menuItems = listOf(TrackRowMenuItem(removeLabel) { onRemove(track) }),
+                        menuItems = trackRowMenuItems(
+                            onPlayNext = { onPlayNext(track) },
+                            onAddToQueue = { onAddToQueue(track) },
+                            onRemoveFromPlaylist = { onRemove(track) },
+                        ),
                         modifier = Modifier.longPressDraggableHandle(
                             onDragStopped = { onReorder(items.map { it.id }) },
                         ),

@@ -8,6 +8,11 @@ enum class RepeatMode { OFF, ONE, ALL }
 /** A single entry in the play queue (a snapshot of a Media3 timeline item). */
 data class QueueItem(
     val id: Long,
+    /**
+     * Stable, unique key for this queue *position* — the same track may appear more than once
+     * (e.g. added twice), so [id] alone isn't unique. Used as the list/reorder key.
+     */
+    val key: String,
     val title: String,
     val artist: String,
     val artworkUri: Uri? = null,

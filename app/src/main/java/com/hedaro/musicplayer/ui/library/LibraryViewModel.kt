@@ -100,6 +100,10 @@ class LibraryViewModel @Inject constructor(
     /** Shuffle-play the whole library. */
     fun shufflePlay() = playbackConnection.shufflePlay(tracks.value)
 
+    fun playNext(track: Track) = playbackConnection.playNext(track)
+
+    fun addToQueue(track: Track) = playbackConnection.addToQueue(track)
+
     fun toggleFavorite(track: Track) {
         viewModelScope.launch { musicRepository.setFavorite(track.id, !track.isFavorite) }
     }

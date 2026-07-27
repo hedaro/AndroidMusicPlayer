@@ -21,28 +21,41 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.hedaro.musicplayer.R
+import com.hedaro.musicplayer.data.model.Playlist
 import com.hedaro.musicplayer.data.model.Track
 
 /**
  * Shared detail view for a collection of tracks (an album or a folder): a titled list with
- * Play / Shuffle buttons and favorite toggles. No reordering (order is intrinsic to the source).
+ * Play / Shuffle buttons, favorite toggles, and a per-track overflow menu (play next / add to
+ * queue / add to playlist). No reordering (order is intrinsic to the source).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CollectionDetailScreen(
     title: String,
     tracks: List<Track>,
+    playlists: List<Playlist>,
     onBack: () -> Unit,
     onPlay: (Int) -> Unit,
     onShufflePlay: () -> Unit,
     onToggleFavorite: (Track) -> Unit,
+    onPlayNext: (Track) -> Unit,
+    onAddToQueue: (Track) -> Unit,
+    onAddToPlaylist: (playlistId: Long, track: Track) -> Unit,
+    onCreatePlaylistWithTrack: (name: String, track: Track) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    var trackForPlaylist by remember { mutableStateOf<Track?>(null) }
+
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -86,9 +99,29 @@ fun CollectionDetailScreen(
                         track = track,
                         onClick = { onPlay(index) },
                         onToggleFavorite = { onToggleFavorite(track) },
+                        menuItems = trackRowMenuItems(
+                            onPlayNext = { onPlayNext(track) },
+                            onAddToQueue = { onAddToQueue(track) },
+                            onAddToPlaylist = { trackForPlaylist = track },
+                        ),
                     )
                 }
             }
         }
+    }
+
+    trackForPlaylist?.let { track ->
+        AddToPlaylistDialog(
+            playlists = playlists,
+            onAddToExisting = { playlistId ->
+                onAddToPlaylist(playlistId, track)
+                trackForPlaylist = null
+            },
+            onCreateAndAdd = { name ->
+                onCreatePlaylistWithTrack(name, track)
+                trackForPlaylist = null
+            },
+            onDismiss = { trackForPlaylist = null },
+        )
     }
 }

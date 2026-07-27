@@ -188,12 +188,19 @@ class PlaybackConnection @Inject constructor(
         }
         val metadata = c.mediaMetadata
         val queue = buildList {
+            // The same track can appear more than once, so disambiguate by occurrence for a
+            // stable, unique list key per position.
+            val occurrences = HashMap<Long, Int>()
             for (i in 0 until c.mediaItemCount) {
                 val item = c.getMediaItemAt(i)
                 val itemMetadata = item.mediaMetadata
+                val trackId = item.mediaId.toLongOrNull() ?: -1L
+                val occurrence = occurrences.getOrDefault(trackId, 0)
+                occurrences[trackId] = occurrence + 1
                 add(
                     QueueItem(
-                        id = item.mediaId.toLongOrNull() ?: -1L,
+                        id = trackId,
+                        key = "$trackId#$occurrence",
                         title = itemMetadata.title?.toString().orEmpty(),
                         artist = itemMetadata.artist?.toString().orEmpty(),
                         artworkUri = itemMetadata.artworkUri,
