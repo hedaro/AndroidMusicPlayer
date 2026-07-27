@@ -90,6 +90,9 @@ private fun MusicApp(adProvider: AdProvider) {
                     MiniPlayer(
                         state = playback,
                         onPlayPause = playerViewModel::playPause,
+                        onOpenQueue = {
+                            navController.navigate(Screen.Queue.route) { launchSingleTop = true }
+                        },
                         onClick = {
                             navController.navigate(Screen.NowPlaying.route) { launchSingleTop = true }
                         },

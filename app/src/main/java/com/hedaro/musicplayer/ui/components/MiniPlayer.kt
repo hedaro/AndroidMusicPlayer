@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -40,6 +41,7 @@ import com.hedaro.musicplayer.playback.PlaybackState
 fun MiniPlayer(
     state: PlaybackState,
     onPlayPause: () -> Unit,
+    onOpenQueue: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -98,6 +100,12 @@ fun MiniPlayer(
                         contentDescription = stringResource(
                             if (state.isPlaying) R.string.cd_pause else R.string.cd_play,
                         ),
+                    )
+                }
+                IconButton(onClick = onOpenQueue) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.QueueMusic,
+                        contentDescription = stringResource(R.string.cd_open_queue),
                     )
                 }
             }
