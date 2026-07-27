@@ -93,6 +93,28 @@ class PlaybackConnection @Inject constructor(
 
     // --- Queue controls -----------------------------------------------------
 
+    /** Insert [track] right after the current item so it plays next. Starts a fresh queue if empty. */
+    fun playNext(track: Track) {
+        val c = controller ?: return
+        if (c.mediaItemCount == 0) {
+            c.setMediaItems(listOf(track.toMediaItem()))
+            c.prepare()
+        } else {
+            c.addMediaItem(c.currentMediaItemIndex + 1, track.toMediaItem())
+        }
+    }
+
+    /** Append [track] to the end of the queue. Starts a fresh queue if empty. */
+    fun addToQueue(track: Track) {
+        val c = controller ?: return
+        if (c.mediaItemCount == 0) {
+            c.setMediaItems(listOf(track.toMediaItem()))
+            c.prepare()
+        } else {
+            c.addMediaItem(track.toMediaItem())
+        }
+    }
+
     /** Jump to (and start) the queue item at [index]. */
     fun jumpTo(index: Int) { controller?.seekTo(index, 0L) }
 
