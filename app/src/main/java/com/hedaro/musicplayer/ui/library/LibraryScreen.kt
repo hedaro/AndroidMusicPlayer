@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.SearchOff
@@ -23,6 +24,7 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -88,6 +90,7 @@ fun LibraryScreen(
             LibraryTab.SONGS -> SongsList(
                 tracks = tracks,
                 query = query,
+                sort = sort,
                 innerPadding = innerPadding,
                 onPlay = viewModel::play,
                 onToggleFavorite = viewModel::toggleFavorite,
@@ -120,6 +123,7 @@ fun LibraryScreen(
 private fun SongsList(
     tracks: List<Track>,
     query: String,
+    sort: TrackSort,
     innerPadding: androidx.compose.foundation.layout.PaddingValues,
     onPlay: (Int) -> Unit,
     onToggleFavorite: (Track) -> Unit,
@@ -131,7 +135,19 @@ private fun SongsList(
         EmptyMessage(innerPadding, if (query.isBlank()) R.string.empty_library else R.string.empty_search_results)
         return
     }
-    LazyColumn(modifier = Modifier.fillMaxSize(), contentPadding = innerPadding) {
+    val listState = rememberLazyListState()
+    // LazyColumn preserves scroll position by item key, so a re-sort would otherwise leave the
+    // list anchored to the old top track. Arm a scroll on sort change and fire it once the newly
+    // sorted list is actually applied (it arrives a frame later, via the repository flow).
+    var pendingScrollToTop by remember { mutableStateOf(false) }
+    LaunchedEffect(sort) { pendingScrollToTop = true }
+    LaunchedEffect(tracks) {
+        if (pendingScrollToTop) {
+            listState.scrollToItem(0)
+            pendingScrollToTop = false
+        }
+    }
+    LazyColumn(state = listState, modifier = Modifier.fillMaxSize(), contentPadding = innerPadding) {
         itemsIndexed(tracks, key = { _, track -> track.id }) { index, track ->
             TrackRow(
                 track = track,
