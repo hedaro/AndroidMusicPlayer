@@ -62,6 +62,10 @@ root; without it, release builds are left unsigned (debug builds are unaffected)
    ./gradlew bundleRelease     # signed AAB  -> app/build/outputs/bundle/release/
    ```
 
+Artifacts are named `MusicPlayer-<versionName>-<versionCode>-<buildType>` (e.g.
+`MusicPlayer-0.1.0-1-release.apk`) so successive versions can be archived side by side. Bump
+`appVersionName` / `appVersionCode` at the top of [`app/build.gradle.kts`](app/build.gradle.kts) per release.
+
 `keystore.properties` and `*.jks` are git-ignored. **Back up the keystore + passwords** — the same key
 is required for every future update.
 

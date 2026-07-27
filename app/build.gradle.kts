@@ -18,9 +18,15 @@ val keystoreProperties = Properties().apply {
     }
 }
 
-// Name build outputs "MusicPlayer-<buildType>.apk" instead of the default "app-<buildType>.apk".
+// Single source of truth for the app version, reused in defaultConfig and the output name below.
+val appVersionCode = 1
+val appVersionName = "0.1.0"
+
+// Name build outputs "MusicPlayer-<versionName>-<versionCode>-<buildType>.apk"
+// (AGP appends "-<buildType>") instead of the default "app-<buildType>.apk", so each release
+// is uniquely named and versions can sit side by side in an archive. Also applies to the .aab.
 base {
-    archivesName.set("MusicPlayer")
+    archivesName.set("MusicPlayer-$appVersionName-$appVersionCode")
 }
 
 android {
@@ -31,8 +37,8 @@ android {
         applicationId = "com.hedaro.musicplayer"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = appVersionCode
+        versionName = appVersionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
