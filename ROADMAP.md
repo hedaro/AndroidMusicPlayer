@@ -83,7 +83,7 @@ Each shipped on its own `feature/*` branch, reviewed and merged:
 - [x] **Folder / album browsing** — Songs / Albums / Folders tabs + drill-in detail screens
 - [x] **Drag-to-reorder** playlist tracks (long-press; `sh.calvin.reorderable`)
 - [x] **Release signing** — `signingConfigs.release` from git-ignored `keystore.properties`;
-      `MusicPlayer-<buildType>.apk` output naming (see README → *Release build*)
+      `MusicPlayer-<versionName>-<versionCode>-<buildType>.apk` output naming (see README → *Release build*)
 - [x] **Queue view + persistence** — tap-jump / long-press drag-reorder / swipe-remove; entry
       points on MiniPlayer + Now Playing; queue survives a process kill (Room v2, restored paused)
 
