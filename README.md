@@ -14,6 +14,7 @@ A clean, ad-free Android music player for the local device library — built for
 - Shuffle (toggle + shuffle-play) and loop (single track & whole playlist)
 - Seek bar with elapsed / remaining time + scrubbing; touch-friendly ±5s / ±10s step controls
 - Persistent **mini-player** (with progress line) + full **Now Playing** screen
+- **Play queue** view — tap-to-jump, drag-reorder, swipe-remove; **survives the app being killed** (queue + position restored, paused)
 - **Library browsing**: Songs / Albums / Folders tabs, with sort (title / artist / recently-added / most-played) and **search**
 - **Favorites** + **play count** (per track); favorites view and sort-by-most-played
 - **Playlists**: create, rename, delete, add/remove, and **drag-to-reorder**
@@ -68,10 +69,10 @@ is required for every future update.
 
 ```
 app/src/main/java/com/hedaro/musicplayer/
-├── data/        # models, MediaStore data source, Room DB, DataStore prefs, repositories
-├── playback/    # Media3 service + MediaController connection
+├── data/        # models, MediaStore data source, Room DB (playlists/stats/queue), DataStore prefs, repositories
+├── playback/    # Media3 service (queue persistence) + MediaController connection
 ├── ui/          # theme, navigation, components, and screens:
-│                #   library, nowplaying, favorites, playlists, browse (album/folder), settings
+│                #   library, nowplaying, queue, favorites, playlists, browse (album/folder), settings
 ├── ads/         # ad seam: AdProvider interface + NoOpAdProvider (no SDK)
 ├── di/          # Hilt modules
 └── util/        # helpers (time formatting, permissions, search, constants)
