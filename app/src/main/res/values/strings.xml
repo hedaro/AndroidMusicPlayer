@@ -53,6 +53,10 @@
     <string name="cd_open_queue">Open queue</string>
     <string name="cd_now_playing_indicator">Now playing</string>
     <string name="cd_remove_from_queue">Remove from queue</string>
+    <string name="cd_clear_queue">Clear queue</string>
+    <string name="dialog_clear_queue_title">Clear queue?</string>
+    <string name="dialog_clear_queue_message">This removes all tracks from the queue and stops playback.</string>
+    <string name="action_clear">Clear</string>
 
     <!-- Settings -->
     <string name="nav_settings">Settings</string>
