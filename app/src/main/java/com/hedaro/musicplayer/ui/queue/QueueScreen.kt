@@ -15,9 +15,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
@@ -61,6 +64,7 @@ fun QueueScreen(
     viewModel: QueueViewModel = hiltViewModel(),
 ) {
     val state by viewModel.playbackState.collectAsStateWithLifecycle()
+    var showClearConfirm by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier,
@@ -73,6 +77,16 @@ fun QueueScreen(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_back),
                         )
+                    }
+                },
+                actions = {
+                    if (state.queue.isNotEmpty()) {
+                        IconButton(onClick = { showClearConfirm = true }) {
+                            Icon(
+                                Icons.Filled.ClearAll,
+                                contentDescription = stringResource(R.string.cd_clear_queue),
+                            )
+                        }
                     }
                 },
             )
@@ -97,6 +111,25 @@ fun QueueScreen(
                 onRemove = viewModel::remove,
             )
         }
+    }
+
+    if (showClearConfirm) {
+        AlertDialog(
+            onDismissRequest = { showClearConfirm = false },
+            title = { Text(stringResource(R.string.dialog_clear_queue_title)) },
+            text = { Text(stringResource(R.string.dialog_clear_queue_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showClearConfirm = false
+                    viewModel.clearQueue()
+                }) { Text(stringResource(R.string.action_clear)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showClearConfirm = false }) {
+                    Text(stringResource(R.string.action_cancel))
+                }
+            },
+        )
     }
 }
 
@@ -129,8 +162,8 @@ private fun QueueList(
         modifier = Modifier.fillMaxSize(),
         contentPadding = innerPadding,
     ) {
-        itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
-            ReorderableItem(reorderState, key = item.id) { isDragging ->
+        itemsIndexed(items, key = { _, item -> item.key }) { index, item ->
+            ReorderableItem(reorderState, key = item.key) { isDragging ->
                 val dismissState = rememberSwipeToDismissBoxState(
                     confirmValueChange = { value ->
                         if (value != SwipeToDismissBoxValue.Settled) {

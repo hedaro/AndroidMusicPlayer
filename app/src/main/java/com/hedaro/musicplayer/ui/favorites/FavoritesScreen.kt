@@ -33,8 +33,8 @@ import com.hedaro.musicplayer.data.model.Track
 import com.hedaro.musicplayer.ui.components.AddToPlaylistDialog
 import com.hedaro.musicplayer.ui.components.SearchField
 import com.hedaro.musicplayer.ui.components.TrackRow
-import com.hedaro.musicplayer.ui.components.TrackRowMenuItem
 import com.hedaro.musicplayer.ui.components.TrackSortMenu
+import com.hedaro.musicplayer.ui.components.trackRowMenuItems
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,7 +94,6 @@ fun FavoritesScreen(
                 Text(stringResource(message))
             }
         } else {
-            val addLabel = stringResource(R.string.action_add_to_playlist)
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = innerPadding,
@@ -104,8 +103,10 @@ fun FavoritesScreen(
                         track = track,
                         onClick = { viewModel.play(index) },
                         onToggleFavorite = { viewModel.toggleFavorite(track) },
-                        menuItems = listOf(
-                            TrackRowMenuItem(addLabel) { trackForPlaylist = track },
+                        menuItems = trackRowMenuItems(
+                            onPlayNext = { viewModel.playNext(track) },
+                            onAddToQueue = { viewModel.addToQueue(track) },
+                            onAddToPlaylist = { trackForPlaylist = track },
                         ),
                     )
                 }

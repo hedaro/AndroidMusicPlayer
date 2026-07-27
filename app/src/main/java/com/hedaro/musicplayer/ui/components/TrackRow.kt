@@ -40,6 +40,24 @@ import com.hedaro.musicplayer.util.formatDuration
 data class TrackRowMenuItem(val label: String, val onClick: () -> Unit)
 
 /**
+ * Builds the standard track overflow-menu items in a consistent order. **Play next** and **Add to
+ * queue** are always present; **Add to playlist** and **Remove** are included only when their
+ * callbacks are supplied. Callbacks typically capture the row's track.
+ */
+@Composable
+fun trackRowMenuItems(
+    onPlayNext: () -> Unit,
+    onAddToQueue: () -> Unit,
+    onAddToPlaylist: (() -> Unit)? = null,
+    onRemoveFromPlaylist: (() -> Unit)? = null,
+): List<TrackRowMenuItem> = buildList {
+    add(TrackRowMenuItem(stringResource(R.string.action_play_next), onPlayNext))
+    add(TrackRowMenuItem(stringResource(R.string.action_add_to_queue), onAddToQueue))
+    onAddToPlaylist?.let { add(TrackRowMenuItem(stringResource(R.string.action_add_to_playlist), it)) }
+    onRemoveFromPlaylist?.let { add(TrackRowMenuItem(stringResource(R.string.action_remove_from_playlist), it)) }
+}
+
+/**
  * A single track row: album art, title/artist·duration, a favorite toggle, and an optional
  * overflow menu ([menuItems]). [isCurrent] highlights the currently-playing row.
  */

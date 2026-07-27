@@ -93,6 +93,32 @@ class PlaybackConnection @Inject constructor(
 
     // --- Queue controls -----------------------------------------------------
 
+    /**
+     * Insert [track] right after the current item so it plays next. If nothing is queued yet,
+     * start it playing straight away (there's no "current" track for it to follow).
+     */
+    fun playNext(track: Track) {
+        val c = controller ?: return
+        if (c.mediaItemCount == 0) {
+            c.setMediaItems(listOf(track.toMediaItem()))
+            c.prepare()
+            c.play()
+        } else {
+            c.addMediaItem(c.currentMediaItemIndex + 1, track.toMediaItem())
+        }
+    }
+
+    /** Append [track] to the end of the queue. Starts a fresh queue if empty. */
+    fun addToQueue(track: Track) {
+        val c = controller ?: return
+        if (c.mediaItemCount == 0) {
+            c.setMediaItems(listOf(track.toMediaItem()))
+            c.prepare()
+        } else {
+            c.addMediaItem(track.toMediaItem())
+        }
+    }
+
     /** Jump to (and start) the queue item at [index]. */
     fun jumpTo(index: Int) { controller?.seekTo(index, 0L) }
 
@@ -101,6 +127,9 @@ class PlaybackConnection @Inject constructor(
 
     /** Remove the queue item at [index]. */
     fun removeFromQueue(index: Int) { controller?.removeMediaItem(index) }
+
+    /** Empty the whole queue and stop playback. */
+    fun clearQueue() { controller?.clearMediaItems() }
 
     /** Step by a signed offset (e.g. +5s / -10s), clamped to the track bounds. */
     fun stepBy(deltaMs: Long) {
@@ -166,12 +195,19 @@ class PlaybackConnection @Inject constructor(
         }
         val metadata = c.mediaMetadata
         val queue = buildList {
+            // The same track can appear more than once, so disambiguate by occurrence for a
+            // stable, unique list key per position.
+            val occurrences = HashMap<Long, Int>()
             for (i in 0 until c.mediaItemCount) {
                 val item = c.getMediaItemAt(i)
                 val itemMetadata = item.mediaMetadata
+                val trackId = item.mediaId.toLongOrNull() ?: -1L
+                val occurrence = occurrences.getOrDefault(trackId, 0)
+                occurrences[trackId] = occurrence + 1
                 add(
                     QueueItem(
-                        id = item.mediaId.toLongOrNull() ?: -1L,
+                        id = trackId,
+                        key = "$trackId#$occurrence",
                         title = itemMetadata.title?.toString().orEmpty(),
                         artist = itemMetadata.artist?.toString().orEmpty(),
                         artworkUri = itemMetadata.artworkUri,
