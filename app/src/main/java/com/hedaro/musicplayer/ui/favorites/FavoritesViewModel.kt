@@ -57,9 +57,11 @@ class FavoritesViewModel @Inject constructor(
         playlistRepository.observePlaylists()
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    fun play(index: Int) = playbackConnection.playTracks(tracks.value, index)
+    fun play(index: Int) = playbackConnection.playFrom(sourceKey(), tracks.value, index)
 
-    fun shufflePlay() = playbackConnection.shufflePlay(tracks.value)
+    fun shufflePlay() = playbackConnection.shufflePlay(sourceKey(), tracks.value)
+
+    private fun sourceKey(): String = "favorites|sort=${_sort.value}|q=${_query.value}"
 
     fun playNext(track: Track) = playbackConnection.playNext(track)
 

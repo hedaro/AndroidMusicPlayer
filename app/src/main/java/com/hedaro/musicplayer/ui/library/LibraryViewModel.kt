@@ -94,11 +94,15 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    /** Play the whole library starting at [index] (in the current sort order). */
-    fun play(index: Int) = playbackConnection.playTracks(tracks.value, index)
+    /** Play the currently-visible songs starting at [index] (in the current sort/filter). */
+    fun play(index: Int) = playbackConnection.playFrom(sourceKey(), tracks.value, index)
 
-    /** Shuffle-play the whole library. */
-    fun shufflePlay() = playbackConnection.shufflePlay(tracks.value)
+    /** Shuffle-play the currently-visible songs. */
+    fun shufflePlay() = playbackConnection.shufflePlay(sourceKey(), tracks.value)
+
+    // Sort and filter are part of the identity: "all songs" and "filtered songs" are distinct
+    // sources, so switching filter/sort rebuilds the queue rather than jumping within the old one.
+    private fun sourceKey(): String = "library|sort=${_sort.value}|q=${_query.value}"
 
     fun playNext(track: Track) = playbackConnection.playNext(track)
 

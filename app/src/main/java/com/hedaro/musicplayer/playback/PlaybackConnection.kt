@@ -39,6 +39,12 @@ class PlaybackConnection @Inject constructor(
 
     private var controller: MediaController? = null
 
+    // Identifies what produced the current queue (e.g. "album=12", "library|sort=TITLE|q=").
+    // Lets a tap on a track from the same source jump within the queue instead of rebuilding it.
+    // In-memory only: after a process kill the queue is restored but this is null, so the first
+    // tap rebuilds.
+    private var currentSource: String? = null
+
     init {
         val sessionToken = SessionToken(context, ComponentName(context, PlaybackService::class.java))
         val controllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
@@ -54,6 +60,28 @@ class PlaybackConnection @Inject constructor(
 
     // --- Transport controls -------------------------------------------------
 
+    /**
+     * Play [tracks] (from list context [source]) starting at [startIndex]. If [source] matches the
+     * queue that's already playing and the tapped track is still in it, just jump to it; otherwise
+     * rebuild the queue from [tracks]. This keeps "tap a song in the list I'm already playing" a
+     * cheap jump, while tapping a song from a different list (album, playlist, filter…) replaces
+     * the queue with that list.
+     */
+    fun playFrom(source: String, tracks: List<Track>, startIndex: Int) {
+        val c = controller ?: return
+        val target = tracks.getOrNull(startIndex) ?: return
+        if (source == currentSource) {
+            val queueIndex = c.indexOfTrack(target.id)
+            if (queueIndex >= 0) {
+                c.seekTo(queueIndex, 0L)
+                c.play()
+                return
+            }
+        }
+        currentSource = source
+        playTracks(tracks, startIndex)
+    }
+
     /** Replace the queue with [tracks] and start playing from [startIndex]. */
     fun playTracks(tracks: List<Track>, startIndex: Int = 0) {
         val c = controller ?: return
@@ -65,17 +93,27 @@ class PlaybackConnection @Inject constructor(
     }
 
     /**
-     * Shuffle-play entry point: start the whole [tracks] list playing in random order.
-     * Enables shuffle mode and begins from a random track.
+     * Shuffle-play entry point: start the whole [tracks] list (from list context [source]) playing
+     * in random order. Enables shuffle mode and begins from a random track.
      */
-    fun shufflePlay(tracks: List<Track>) {
+    fun shufflePlay(source: String, tracks: List<Track>) {
         val c = controller ?: return
         if (tracks.isEmpty()) return
+        currentSource = source
         c.shuffleModeEnabled = true
         val startIndex = Random.nextInt(tracks.size)
         c.setMediaItems(tracks.map { it.toMediaItem() }, startIndex, 0L)
         c.prepare()
         c.play()
+    }
+
+    /** Index of the first queue item backing [trackId], or -1 if it isn't in the queue. */
+    private fun MediaController.indexOfTrack(trackId: Long): Int {
+        val idStr = trackId.toString()
+        for (i in 0 until mediaItemCount) {
+            if (getMediaItemAt(i).mediaId == idStr) return i
+        }
+        return -1
     }
 
     fun playPause() {
@@ -129,7 +167,10 @@ class PlaybackConnection @Inject constructor(
     fun removeFromQueue(index: Int) { controller?.removeMediaItem(index) }
 
     /** Empty the whole queue and stop playback. */
-    fun clearQueue() { controller?.clearMediaItems() }
+    fun clearQueue() {
+        controller?.clearMediaItems()
+        currentSource = null
+    }
 
     /** Step by a signed offset (e.g. +5s / -10s), clamped to the track bounds. */
     fun stepBy(deltaMs: Long) {
