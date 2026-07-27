@@ -8,8 +8,10 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -85,7 +87,9 @@ private fun MusicApp(adProvider: AdProvider) {
 
     Scaffold(
         bottomBar = {
-            Column {
+            // Apply the bottom system-bar (gesture/nav) inset once here, so the MiniPlayer never
+            // overlaps the system buttons even on screens without the NavigationBar.
+            Column(modifier = Modifier.navigationBarsPadding()) {
                 if (showMiniPlayer) {
                     MiniPlayer(
                         state = playback,
@@ -99,7 +103,8 @@ private fun MusicApp(adProvider: AdProvider) {
                     )
                 }
                 if (isTopLevel) {
-                    NavigationBar {
+                    // Inset handled by the Column above, so don't let NavigationBar add it again.
+                    NavigationBar(windowInsets = WindowInsets(0, 0, 0, 0)) {
                         TopLevelDestination.entries.forEach { destination ->
                             val selected = currentRoute == destination.screen.route
                             NavigationBarItem(
