@@ -2,8 +2,10 @@ package com.hedaro.musicplayer.di
 
 import android.content.Context
 import androidx.room.Room
+import com.hedaro.musicplayer.data.local.db.MIGRATION_1_2
 import com.hedaro.musicplayer.data.local.db.MusicDatabase
 import com.hedaro.musicplayer.data.local.db.dao.PlaylistDao
+import com.hedaro.musicplayer.data.local.db.dao.QueueDao
 import com.hedaro.musicplayer.data.local.db.dao.TrackStatsDao
 import dagger.Module
 import dagger.Provides
@@ -23,11 +25,16 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideMusicDatabase(@ApplicationContext context: Context): MusicDatabase =
-        Room.databaseBuilder(context, MusicDatabase::class.java, "music.db").build()
+        Room.databaseBuilder(context, MusicDatabase::class.java, "music.db")
+            .addMigrations(MIGRATION_1_2)
+            .build()
 
     @Provides
     fun providePlaylistDao(database: MusicDatabase): PlaylistDao = database.playlistDao()
 
     @Provides
     fun provideTrackStatsDao(database: MusicDatabase): TrackStatsDao = database.trackStatsDao()
+
+    @Provides
+    fun provideQueueDao(database: MusicDatabase): QueueDao = database.queueDao()
 }

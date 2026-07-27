@@ -15,6 +15,7 @@ import com.hedaro.musicplayer.ui.library.LibraryScreen
 import com.hedaro.musicplayer.ui.nowplaying.NowPlayingScreen
 import com.hedaro.musicplayer.ui.playlists.PlaylistDetailScreen
 import com.hedaro.musicplayer.ui.playlists.PlaylistsScreen
+import com.hedaro.musicplayer.ui.queue.QueueScreen
 import com.hedaro.musicplayer.ui.settings.SettingsScreen
 
 /** App navigation graph: Library / Favorites / Playlists tabs, playlist detail, and Now Playing. */
@@ -70,7 +71,19 @@ fun MusicNavHost(
             FolderDetailScreen(onBack = { navController.popBackStack() })
         }
         composable(Screen.NowPlaying.route) {
-            NowPlayingScreen(onBack = { navController.popBackStack() })
+            NowPlayingScreen(
+                onBack = { navController.popBackStack() },
+                onOpenQueue = {
+                    navController.navigate(Screen.Queue.route) {
+                        launchSingleTop = true
+                        // Replace Now Playing rather than stacking the two.
+                        popUpTo(Screen.NowPlaying.route) { inclusive = true }
+                    }
+                },
+            )
+        }
+        composable(Screen.Queue.route) {
+            QueueScreen(onBack = { navController.popBackStack() })
         }
         composable(Screen.Settings.route) {
             SettingsScreen(onBack = { navController.popBackStack() })
