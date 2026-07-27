@@ -3,8 +3,6 @@ package com.hedaro.musicplayer.playback
 import android.content.ComponentName
 import android.content.Context
 import androidx.core.content.ContextCompat
-import androidx.media3.common.MediaItem
-import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
@@ -93,6 +91,17 @@ class PlaybackConnection @Inject constructor(
 
     fun seekTo(positionMs: Long) { controller?.seekTo(positionMs.coerceAtLeast(0L)) }
 
+    // --- Queue controls -----------------------------------------------------
+
+    /** Jump to (and start) the queue item at [index]. */
+    fun jumpTo(index: Int) { controller?.seekTo(index, 0L) }
+
+    /** Reorder the queue: move the item at [from] to [to]. */
+    fun moveInQueue(from: Int, to: Int) { controller?.moveMediaItem(from, to) }
+
+    /** Remove the queue item at [index]. */
+    fun removeFromQueue(index: Int) { controller?.removeMediaItem(index) }
+
     /** Step by a signed offset (e.g. +5s / -10s), clamped to the track bounds. */
     fun stepBy(deltaMs: Long) {
         val c = controller ?: return
@@ -156,6 +165,20 @@ class PlaybackConnection @Inject constructor(
             return
         }
         val metadata = c.mediaMetadata
+        val queue = buildList {
+            for (i in 0 until c.mediaItemCount) {
+                val item = c.getMediaItemAt(i)
+                val itemMetadata = item.mediaMetadata
+                add(
+                    QueueItem(
+                        id = item.mediaId.toLongOrNull() ?: -1L,
+                        title = itemMetadata.title?.toString().orEmpty(),
+                        artist = itemMetadata.artist?.toString().orEmpty(),
+                        artworkUri = itemMetadata.artworkUri,
+                    ),
+                )
+            }
+        }
         _playbackState.update {
             it.copy(
                 isConnected = true,
@@ -171,23 +194,11 @@ class PlaybackConnection @Inject constructor(
                 hasNext = c.hasNextMediaItem(),
                 hasPrevious = c.hasPreviousMediaItem(),
                 queueSize = c.mediaItemCount,
+                queue = queue,
+                currentIndex = c.currentMediaItemIndex,
             )
         }
     }
-
-    private fun Track.toMediaItem(): MediaItem =
-        MediaItem.Builder()
-            .setMediaId(id.toString()) // lets the service map playback back to a track id
-            .setUri(uri)
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(title)
-                    .setArtist(artist)
-                    .setAlbumTitle(album)
-                    .setArtworkUri(albumArtUri)
-                    .build(),
-            )
-            .build()
 
     private fun Int.toRepeatMode(): RepeatMode = when (this) {
         Player.REPEAT_MODE_ONE -> RepeatMode.ONE
