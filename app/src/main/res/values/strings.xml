@@ -47,6 +47,13 @@
     <!-- Navigation (favorites) -->
     <string name="nav_favorites">Favorites</string>
 
+    <!-- Queue -->
+    <string name="nav_queue">Queue</string>
+    <string name="empty_queue">The queue is empty.</string>
+    <string name="cd_open_queue">Open queue</string>
+    <string name="cd_now_playing_indicator">Now playing</string>
+    <string name="cd_remove_from_queue">Remove from queue</string>
+
     <!-- Settings -->
     <string name="nav_settings">Settings</string>
     <string name="cd_settings">Settings</string>
