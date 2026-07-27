@@ -95,10 +95,17 @@ private fun MusicApp(adProvider: AdProvider) {
                         state = playback,
                         onPlayPause = playerViewModel::playPause,
                         onOpenQueue = {
-                            navController.navigate(Screen.Queue.route) { launchSingleTop = true }
+                            navController.navigate(Screen.Queue.route) {
+                                launchSingleTop = true
+                                // Don't stack Now Playing + Queue: replace the sibling if present.
+                                popUpTo(Screen.NowPlaying.route) { inclusive = true }
+                            }
                         },
                         onClick = {
-                            navController.navigate(Screen.NowPlaying.route) { launchSingleTop = true }
+                            navController.navigate(Screen.NowPlaying.route) {
+                                launchSingleTop = true
+                                popUpTo(Screen.Queue.route) { inclusive = true }
+                            }
                         },
                     )
                 }

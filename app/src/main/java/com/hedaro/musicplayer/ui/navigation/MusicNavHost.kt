@@ -73,7 +73,13 @@ fun MusicNavHost(
         composable(Screen.NowPlaying.route) {
             NowPlayingScreen(
                 onBack = { navController.popBackStack() },
-                onOpenQueue = { navController.navigate(Screen.Queue.route) { launchSingleTop = true } },
+                onOpenQueue = {
+                    navController.navigate(Screen.Queue.route) {
+                        launchSingleTop = true
+                        // Replace Now Playing rather than stacking the two.
+                        popUpTo(Screen.NowPlaying.route) { inclusive = true }
+                    }
+                },
             )
         }
         composable(Screen.Queue.route) {
