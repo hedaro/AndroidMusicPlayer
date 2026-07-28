@@ -20,7 +20,7 @@ val keystoreProperties = Properties().apply {
 
 // Single source of truth for the app version, reused in defaultConfig and the output name below.
 val appVersionCode = 1
-val appVersionName = "0.1.0"
+val appVersionName = "1.1.0"
 
 // Name build outputs "MusicPlayer-<versionName>-<versionCode>-<buildType>.apk"
 // (AGP appends "-<buildType>") instead of the default "app-<buildType>.apk", so each release
