@@ -19,4 +19,6 @@ class QueueViewModel @Inject constructor(
     fun move(from: Int, to: Int) = playbackConnection.moveInQueue(from, to)
     fun remove(index: Int) = playbackConnection.removeFromQueue(index)
     fun clearQueue() = playbackConnection.clearQueue()
+    fun toggleShuffle() = playbackConnection.toggleShuffle()
+    fun cycleRepeat() = playbackConnection.cycleRepeatMode()
 }

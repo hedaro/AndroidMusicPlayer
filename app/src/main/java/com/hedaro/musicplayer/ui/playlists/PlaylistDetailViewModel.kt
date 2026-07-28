@@ -49,9 +49,11 @@ class PlaylistDetailViewModel @Inject constructor(
             .map { list -> list.firstOrNull { it.id == playlistId }?.name.orEmpty() }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), "")
 
-    fun play(index: Int) = playbackConnection.playTracks(tracks.value, index)
+    fun play(index: Int) = playbackConnection.playFrom(sourceKey(), tracks.value, index)
 
-    fun shufflePlay() = playbackConnection.shufflePlay(tracks.value)
+    fun shufflePlay() = playbackConnection.shufflePlay(sourceKey(), tracks.value)
+
+    private fun sourceKey(): String = "playlist=$playlistId|q=${_query.value}"
 
     fun playNext(track: Track) = playbackConnection.playNext(track)
 
