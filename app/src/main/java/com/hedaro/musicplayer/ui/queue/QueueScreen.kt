@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.RepeatOne
@@ -58,6 +57,7 @@ import coil.compose.AsyncImage
 import com.hedaro.musicplayer.R
 import com.hedaro.musicplayer.playback.QueueItem
 import com.hedaro.musicplayer.playback.RepeatMode
+import com.hedaro.musicplayer.ui.components.PlayingEqualizer
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -133,6 +133,7 @@ fun QueueScreen(
             QueueList(
                 queue = state.queue,
                 currentIndex = state.currentIndex,
+                isPlaying = state.isPlaying,
                 innerPadding = innerPadding,
                 onJump = viewModel::jumpTo,
                 onMove = viewModel::move,
@@ -165,6 +166,7 @@ fun QueueScreen(
 private fun QueueList(
     queue: List<QueueItem>,
     currentIndex: Int,
+    isPlaying: Boolean,
     innerPadding: androidx.compose.foundation.layout.PaddingValues,
     onJump: (Int) -> Unit,
     onMove: (Int, Int) -> Unit,
@@ -214,6 +216,7 @@ private fun QueueList(
                         QueueRow(
                             item = item,
                             isCurrent = index == currentIndex,
+                            isPlaying = isPlaying,
                             onClick = { onJump(index) },
                             modifier = Modifier.longPressDraggableHandle(),
                         )
@@ -228,6 +231,7 @@ private fun QueueList(
 private fun QueueRow(
     item: QueueItem,
     isCurrent: Boolean,
+    isPlaying: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -260,10 +264,11 @@ private fun QueueRow(
         },
         trailingContent = {
             if (isCurrent) {
-                Icon(
-                    Icons.Filled.GraphicEq,
+                PlayingEqualizer(
+                    playing = isPlaying,
+                    color = MaterialTheme.colorScheme.primary,
                     contentDescription = stringResource(R.string.cd_now_playing_indicator),
-                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(24.dp),
                 )
             }
         },
